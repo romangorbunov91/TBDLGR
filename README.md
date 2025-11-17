@@ -1,4 +1,4 @@
-# A Transformer-Based Dactile Gesture Recognition
+# A Transformer-Based Dactile Language Gesture Recognition
 
 This is the official PyTorch implementation of the publication:
 
