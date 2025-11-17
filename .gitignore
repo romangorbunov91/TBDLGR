@@ -1,0 +1,15 @@
+/*
+
+!.gitignore
+!/img/
+!/src/
+/src/datasets/__pycache__
+/src/datasets/utils/__pycache__
+/src/models/__pycache__
+/src/models/backbones/__pycache__
+/src/utils/__pycache__
+
+!README.md
+!LICENSE
+!notebook.ipynb
+!requirements.txt
