@@ -41,10 +41,26 @@ These instructions will give you a copy of the project up and running on your lo
 purposes. There isn't much to do, just install the prerequisites and download all the files.
 
 ### Prerequisites
+Create an environment into the folder `.venv`
+```
+python -m venv .venv
+```
+
+Activate the environment
+```
+.venv\Scripts\activate
+```
 
 Run the command:
 ```
 pip install -r requirements.txt
+```
+
+Replace in `\.venv\Lib\site-packages\imgaug\imgaug.py`
+```
+NP_FLOAT_TYPES = {np.float16, np.float32, np.float64}
+NP_INT_TYPES = {np.int8, np.int16, np.int32, np.int64}
+NP_UINT_TYPES = {np.uint8, np.uint16, np.uint32, np.uint64}
 ```
 
 ## Download datasets
@@ -79,10 +95,19 @@ python src/main.py --hypes src/hyperparameters/Briareo/train.json
 
 ## Authors
 
-* [Roman Gorbunov](https://github.com/romangorbunov91)
-* [Stanislava Ivanenko](https://github.com/smthCreate)
-* **??** - [](https://github.com/??)
+* [Роман Горбунов](https://github.com/romangorbunov91)
+* [Станислава Иваненко](https://github.com/smthCreate)
+* [Максим Шугаев](https://github.com/knjii)
+* [Анжелина Абдулаева](https://github.com/anzhelina0)
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+```
+pip freeze > requirements.txt
+```
+
+```
+pip install git+https://github.com/aleju/imgaug.git@0101108d4fed06bc5056c4a03e2bcb0216dac326
+```
