@@ -57,3 +57,4 @@ tqdm==4.31.1
 traitlets==5.14.3
 typing_extensions==4.15.0
 wcwidth==0.2.14
+#git+https://github.com/aleju/imgaug.git@0101108d4fed06bc5056c4a03e2bcb0216dac326
