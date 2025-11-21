@@ -5,6 +5,7 @@
 !/img/
 
 !/src/
+/src/__pycache__
 /src/datasets/__pycache__
 /src/datasets/utils/__pycache__
 /src/models/__pycache__
