@@ -56,7 +56,7 @@ Run the command:
 pip install -r requirements.txt
 ```
 
-Replace in `\.venv\Lib\site-packages\imgaug\imgaug.py`
+In `\.venv\Lib\site-packages\imgaug\imgaug.py` replace to
 ```
 NP_FLOAT_TYPES = {np.float16, np.float32, np.float64}
 NP_INT_TYPES = {np.int8, np.int16, np.int32, np.int64}
