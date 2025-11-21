@@ -1,3 +1,6 @@
+./torch-2.6.0+cu126-cp313-cp313-win_amd64.whl
+#./torchvision-0.24.1+cu126-cp313-cp313-win_amd64.whl
+./torchaudio-2.6.0+cu126-cp313-cp313-win_amd64.whl
 asttokens==3.0.1
 colorama==0.4.6
 comm==0.2.3
@@ -47,12 +50,9 @@ scipy==1.16.3
 shapely==2.1.2
 six==1.17.0
 stack-data==0.6.3
-sympy==1.14.0
+#sympy==1.14.0
 tensorboardX==1.2
 tifffile==2025.10.16
-torch-2.6.0+cu126-cp313-cp313-win_amd64.whl
-torchvision-0.24.1+cu126-cp313-cp313-win_amd64.whl
-torchaudio-2.6.0+cu126-cp313-cp313-win_amd64.whl
 tornado==6.5.2
 tqdm==4.31.1
 traitlets==5.14.3
