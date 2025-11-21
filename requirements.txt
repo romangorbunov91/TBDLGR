@@ -1,6 +1,6 @@
 ./torch-2.6.0+cu126-cp313-cp313-win_amd64.whl
-#./torchvision-0.24.1+cu126-cp313-cp313-win_amd64.whl
 ./torchaudio-2.6.0+cu126-cp313-cp313-win_amd64.whl
+#./torchvision-0.24.1+cu126-cp313-cp313-win_amd64.whl
 asttokens==3.0.1
 colorama==0.4.6
 comm==0.2.3
