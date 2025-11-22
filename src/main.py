@@ -23,7 +23,7 @@ if __name__ == "__main__":
                         help='Disable CUDA')
     parser.add_argument('--hypes', default=None, type=str,
                         dest='hypes', help='The file of the hyper parameters.')
-    parser.add_argument('--phase', default='train', type=str,
+    parser.add_argument('--phase', default=None, type=str,
                         dest='phase', help='The phase of module.')
     parser.add_argument('--gpu', default=[0, ], nargs='+', type=int,
                         dest='gpu', help='The gpu used.')
@@ -41,11 +41,12 @@ if __name__ == "__main__":
 
     torch.autograd.set_detect_anomaly(True)
     configer = Configer(args)
-    if configer.get('phase') == 'train':
+    phase = args.phase if args.phase is not None else configer.params.get('phase')
+    if phase == 'train':
         model = GestureTrainer(configer)
         model.init_model()
         model.train()
-    elif configer.get('phase') == 'test':
+    elif phase == 'test':
         model = GestureTest(configer)
         model.init_model()
         model.test()

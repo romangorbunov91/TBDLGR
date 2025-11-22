@@ -87,11 +87,14 @@ In there, you can set several parameters, like:
 
 For every other information check the file.
 
-## Usage
+## Usage TRAIN
 ```
 python src/main.py --hypes src/hyperparameters/Briareo/train.json 
 ```
-- `--hypes`, path to configuration file.
+## Usage from saved weights (TEST or continue TRAIN)
+```
+python src/main.py --hypes src/hyperparameters/Briareo/train.json --resume checkpoints/Briareo/best_train_briareo.pth
+```
 
 ## Authors
 
