@@ -12,6 +12,8 @@
 /src/models/backbones/__pycache__
 /src/utils/__pycache__
 
+!/scratch/
+
 !/.venv/Lib/site-packages/imgaug/imgaug.py
 
 !README.md

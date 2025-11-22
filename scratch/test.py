@@ -1,6 +1,8 @@
 import numpy as np
 import torch
 
+from sklearn.metrics import f1_score
+
 from torch.utils.data import DataLoader
 import imgaug.augmenters as iaa
 
@@ -110,28 +112,33 @@ class GestureTest(object):
     def __test(self):
         """Testing function."""
         self.net.eval()
-        c = 0
-        tot = 0
+        all_preds = []
+        all_labels = []
+        
         with torch.no_grad():
             for i, data_tuple in enumerate(tqdm(self.data_loader, desc="Test")):
-                """
-                input, gt
-                """
                 inputs = data_tuple[0].to(self.device)
                 gt = data_tuple[1].to(self.device)
 
                 output = self.net(inputs)
+                predicted = torch.argmax(output, dim=1)
+                correct = gt.squeeze(dim=1)  # Ensure labels are 1D
 
-                predicted = torch.argmax(output.detach(), dim=1)
-                correct = gt.detach().squeeze(dim=1)
+                all_preds.append(predicted.cpu())
+                all_labels.append(correct.cpu())
 
-                if predicted == correct:
-                    c += 1
-                tot += 1
+        # Concatenate all predictions and labels
+        all_preds = torch.cat(all_preds).numpy()
+        all_labels = torch.cat(all_labels).numpy()
 
-        accuracy = c / tot
+        # Compute accuracy
+        accuracy = (all_preds == all_labels).mean()
+
+        # Compute F1 score (macro by default; change average as needed)
+        f1 = f1_score(all_labels, all_preds, average='macro')  # or 'micro', 'weighted'
 
         print("Accuracy: {}".format(accuracy))
+        print("F1: {}".format(f1))
 
     def test(self):
         self.__test()
