@@ -8,6 +8,11 @@
 /src/models/__pycache__
 /src/models/backbones/__pycache__
 /src/utils/__pycache__
+!/sharp_frames
+!/sharp_frames_mpipe
+!/test_bukva
+!/main.py
+!/sharper_frames.py
 
 !/.venv/Lib/site-packages/imgaug/imgaug.py
 

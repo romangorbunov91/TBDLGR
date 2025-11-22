@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import mediapipe as mp
+import cv2
 
 
 def media_pipe(pictures, out_dir_name):
