@@ -131,7 +131,7 @@ class GestureTest(object):
 
         accuracy = c / tot
 
-        print("Accuracy: {}".format(accuracy))
+        print("Accuracy: {:.4f}".format(accuracy))
 
     def test(self):
         self.__test()
