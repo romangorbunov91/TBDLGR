@@ -73,4 +73,4 @@ if __name__ == "__main__":
                      out_dir_name=current_mpipe_output
                  )
             '''
-            logger.info("-" * 40)
+            logger.info("-" * TARGET_FRAMES)

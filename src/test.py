@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 import imgaug.augmenters as iaa
 
 # Import Datasets
+from datasets.Bukva import Bukva
 from datasets.Briareo import Briareo
 from datasets.NVGestures import NVGesture
 from models.model_utilizer import ModuleUtilizer
@@ -90,7 +91,10 @@ class GestureTest(object):
         self.net, _, _, _ = self.model_utility.load_net(self.net)
 
         # Selecting Dataset and DataLoader
-        if self.dataset == "briareo":
+        if self.dataset == "bukva":
+            Dataset = Bukva
+            self.transforms = iaa.CenterCropToFixedSize(200, 200)
+        elif self.dataset == "briareo":
             Dataset = Briareo
             self.transforms = iaa.CenterCropToFixedSize(200, 200)
         elif self.dataset == "nvgestures":

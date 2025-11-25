@@ -1,23 +1,17 @@
-import os
-import math
 import torch
 from pathlib import Path
 
 import cv2
 import numpy as np
+import pandas as pd
 
 from torch.utils.data.dataset import Dataset
 
-from datasets.utils.normals import normals_multi
 from datasets.utils.normalize import normalize
-from datasets.utils.optical_flow import dense_flow
-
-from datasets.utils.utils_briareo import from_json_to_list
-
 
 class Bukva(Dataset):
     """Bukva Dataset class"""
-    def __init__(self, configer, path, split="train", transforms=None):
+    def __init__(self, configer, path, split="train", data_type=None, transforms=None, n_frames=40, optical_flow=False):
         """Constructor method for Bukva Dataset class
 
         Args:
@@ -35,9 +29,29 @@ class Bukva(Dataset):
         self.transforms = transforms
 
         print("Loading Bukva {} dataset...".format(split.upper()), end=" ")
+        
+        annotations_file_name = 'annotations.csv'
+        csv_path = self.dataset_path / annotations_file_name
+        
+        if not csv_path.exists():
+            raise FileNotFoundError(f"Не найден файл аннотаций: {csv_path}")
+        
+        df = pd.read_csv( csv_path )
+        # 2. Фильтрация по сплиту (train/val/test)
+        # В CSV колонка называется 'split'
+        data_df = df[df['split'] == split].reset_index(drop=True)
 
-        self.data = np.loadtxt(self.dataset_path / "annotations.csv", delimiter=',')
-        print("done.")
+        # Превращаем DataFrame в список словарей для удобства (как в Briareo self.data)
+        fixed_data = list()
+        for idx, row in data_df.iterrows():
+            filenames = ['frames/' + str(row['attachment_id']) + f'/frame_{i:03d}.jpg' for i in range(n_frames)]
+            record = {
+                'label': int(row['label_encoded']), # Числовая метка
+                'data': filenames # Имя папки с кадрами
+            }
+            fixed_data.append(record)
+        self.data = np.array(fixed_data)
+        print(f"done. Found {len(self.data)} samples.")
 
     def __len__(self):
         return len(self.data)
@@ -48,8 +62,8 @@ class Bukva(Dataset):
 
         clip = list()
         for p in paths:
-            img = cv2.imread(str(self.dataset_path /'frames'/ p), cv2.IMREAD_COLOR)
-            img = np.expand_dims(img, axis=2)
+            img = cv2.imread(str(self.dataset_path / p), cv2.IMREAD_COLOR)
+            img = cv2.resize(img, (224, 224))
             clip.append(img)
 
         clip = np.array(clip).transpose(1, 2, 3, 0)
@@ -61,4 +75,5 @@ class Bukva(Dataset):
 
         clip = torch.from_numpy(clip.reshape(clip.shape[0], clip.shape[1], -1).transpose(2, 0, 1))
         label = torch.LongTensor(np.asarray([label]))
+        print('done')
         return clip.float(), label
