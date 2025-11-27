@@ -25,10 +25,9 @@ class Bukva(Dataset):
 
         self.dataset_path = Path(path)
         self.split = split
-
         self.transforms = transforms
 
-        print("Loading Bukva {} dataset...".format(split.upper()), end=" ")
+        print("Loading Bukva {} annotations...".format(split.upper()), end=" ")
         
         annotations_file_name = 'annotations.csv'
         csv_path = self.dataset_path / annotations_file_name
@@ -51,7 +50,7 @@ class Bukva(Dataset):
             }
             fixed_data.append(record)
         self.data = np.array(fixed_data)
-        print(f"done. Found {len(self.data)} samples.")
+        print(f"done. Found {len(self.data)} {split.upper()}-samples in '{annotations_file_name}'")
 
     def __len__(self):
         return len(self.data)
@@ -75,5 +74,4 @@ class Bukva(Dataset):
 
         clip = torch.from_numpy(clip.reshape(clip.shape[0], clip.shape[1], -1).transpose(2, 0, 1))
         label = torch.LongTensor(np.asarray([label]))
-        print('done')
         return clip.float(), label
