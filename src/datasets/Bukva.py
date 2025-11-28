@@ -11,7 +11,7 @@ from datasets.utils.normalize import normalize
 
 class Bukva(Dataset):
     """Bukva Dataset class"""
-    def __init__(self, configer, path, split="train", data_type=None, transforms=None, n_frames=40, optical_flow=False):
+    def __init__(self, configer, path, split="train", data_type=None, transforms=None, n_frames=None, optical_flow=False):
         """Constructor method for Bukva Dataset class
 
         Args:
@@ -29,7 +29,7 @@ class Bukva(Dataset):
 
         print("Loading Bukva {} annotations...".format(split.upper()), end=" ")
         
-        annotations_file_name = 'annotations.csv'
+        annotations_file_name = 'annotations_cut.csv'
         csv_path = self.dataset_path / annotations_file_name
         
         if not csv_path.exists():
@@ -38,19 +38,28 @@ class Bukva(Dataset):
         df = pd.read_csv( csv_path )
         # 2. Фильтрация по сплиту (train/val/test)
         # В CSV колонка называется 'split'
-        data_df = df[df['split'] == split].reset_index(drop=True)
+        data_df = df[df['split'] == split].reset_index(drop=True)  
 
         # Превращаем DataFrame в список словарей для удобства (как в Briareo self.data)
         fixed_data = list()
-        for idx, row in data_df.iterrows():
+        for _, row in data_df.iterrows():
             filenames = ['frames/' + str(row['attachment_id']) + f'/frame_{i:03d}.jpg' for i in range(n_frames)]
             record = {
                 'label': int(row['label_encoded']), # Числовая метка
                 'data': filenames # Имя папки с кадрами
             }
             fixed_data.append(record)
+                
         self.data = np.array(fixed_data)
         print(f"done. Found {len(self.data)} {split.upper()}-samples in '{annotations_file_name}'")
+
+        # Проверяем количество frames.
+        img_ext = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}
+        for _, row in data_df.iterrows():
+            frame_dir = 'frames/' + str(row['attachment_id'])
+            files = [fl for fl in Path(str(self.dataset_path / frame_dir)).iterdir() if fl.is_file() and fl.suffix.lower() in img_ext]
+            if len(files) < n_frames:
+                raise ValueError(f"{str(frame_dir)}: only {len(files)} image(s) found (must be >= n_frames={n_frames})")
 
     def __len__(self):
         return len(self.data)
