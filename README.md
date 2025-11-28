@@ -94,7 +94,7 @@ python src/main.py --hypes src/hyperparameters/Briareo/train.json
 ## Usage from saved weights (TEST or continue TRAIN)
 ```
 python src/main.py --hypes src/hyperparameters/Briareo/train.json --resume checkpoints/Briareo/best_train_briareo.pth
-python src/main.py --hypes src/hyperparameters/Bukva/train.json
+python src/main.py --hypes src/hyperparameters/Bukva/train.json --resume checkpoints/Bukva/best_train_bukva.pth
 ```
 
 ## Authors

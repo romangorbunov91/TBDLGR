@@ -1,16 +1,16 @@
 {
     "name": "Gesture Recognition",
     "dataset": "Bukva",
-    "epochs": 1,
+    "epochs": 10,
     "phase": "train",
     "data": {
       "optical_flow": false,
       "type": "rgb",
-      "n_classes": 33,
+      "n_classes": 34,
       "n_frames": 40,
       "data_path": "./././datasets/Bukva",
       "result_dir": "./result",
-      "batch_size": 2
+      "batch_size": 8
     },
     "checkpoints": {
       "save_policy": "best",

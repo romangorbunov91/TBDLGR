@@ -29,7 +29,7 @@ class Bukva(Dataset):
 
         print("Loading Bukva {} annotations...".format(split.upper()), end=" ")
         
-        annotations_file_name = 'annotations.csv'
+        annotations_file_name = 'annotations_cut.csv'
         csv_path = self.dataset_path / annotations_file_name
         
         if not csv_path.exists():
