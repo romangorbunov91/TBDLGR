@@ -29,24 +29,24 @@ class Bukva(Dataset):
 
         print("Loading Bukva {} annotations...".format(split.upper()), end=" ")
         
-        annotations_file_name = 'annotations_cut.csv'
+        annotations_file_name = 'annotations.csv'
         csv_path = self.dataset_path / annotations_file_name
         
         if not csv_path.exists():
-            raise FileNotFoundError(f"Не найден файл аннотаций: {csv_path}")
+            raise FileNotFoundError(f"Annotations has not been found: {csv_path}")
         
         df = pd.read_csv( csv_path )
-        # 2. Фильтрация по сплиту (train/val/test)
-        # В CSV колонка называется 'split'
+        
+        # Фильтрация по сплиту (train/val/test). В annotations колонка 'split'.
         data_df = df[df['split'] == split].reset_index(drop=True)  
 
-        # Превращаем DataFrame в список словарей для удобства (как в Briareo self.data)
+        # Переводим DataFrame в список словарей.
         fixed_data = list()
         for _, row in data_df.iterrows():
             filenames = ['frames/' + str(row['attachment_id']) + f'/frame_{i:03d}.jpg' for i in range(n_frames)]
             record = {
-                'label': int(row['label_encoded']), # Числовая метка
-                'data': filenames # Имя папки с кадрами
+                'label': int(row['label_encoded']), # Числовая метка.
+                'data': filenames # Список кадров.
             }
             fixed_data.append(record)
                 
