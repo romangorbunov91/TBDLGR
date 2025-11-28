@@ -13,6 +13,7 @@
 !/test_bukva
 !/main.py
 !/sharper_frames.py
+!/create_val.ipynb
 
 !/.venv/Lib/site-packages/imgaug/imgaug.py
 

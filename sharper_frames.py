@@ -28,9 +28,14 @@ def get_selected_frame_indices(frame_data, num_frames, method='window'):
     total_frames = len(frame_data)
     
     # Если кадров в видео меньше, чем нужно - берем все и сортируем по времени
-    if total_frames <= num_frames:
-        logger.warning(f"В видео всего {total_frames} кадров, запрошено {num_frames}. Берем все.")
-        return sorted(frame_data, key=lambda x: x[0])
+    if total_frames < num_frames:
+        logger.warning(
+            f"В видео всего {total_frames} кадров, запрошено {num_frames}. "
+            f"Будет выполнен апсемплинг с дублированием кадров."
+        )
+        selected_frames = upsample_frame_indices(frame_data, num_frames)
+        selected_frames.sort(key=lambda x: x[0])
+        return selected_frames
 
     selected_frames = []
 
@@ -68,6 +73,64 @@ def get_selected_frame_indices(frame_data, num_frames, method='window'):
     selected_frames.sort(key=lambda x: x[0])
     
     return selected_frames
+
+def upsample_frame_indices(frame_data, num_frames):
+    """
+    Апсемплинг кадров, если исходных меньше, чем нужно.
+    
+    Args:
+        frame_data: список кортежей [(frame_index, sharpness_score), ...],
+                    ДОЛЖЕН быть отсортирован по frame_index (хронологически).
+        num_frames: целевое количество кадров (например, 40)
+    
+    Returns:
+        Список длины num_frames, содержащий (frame_index, sharpness_score),
+        с возможными повторами, но в хронологическом порядке.
+    """
+    total = len(frame_data)
+    if total == 0:
+        return []
+    if total >= num_frames:
+        # На всякий случай — апсемплинг тут не нужен.
+        return frame_data
+
+    # Гарантируем хронологический порядок исходных кадров
+    frame_data = sorted(frame_data, key=lambda x: x[0])
+
+    # Изначально каждый кадр возьмём по одному разу
+    repeat_counts = np.ones(total, dtype=int)
+
+    # Сколько дублей надо добавить, чтобы получить num_frames
+    extra = num_frames - total  # > 0, так как total < num_frames
+
+    # Равномерно распределим эти дополнительные повторы по временной оси.
+    # Идея: линейно интерполируем extra позиций от 0 до total-1.
+    extra_indices = np.linspace(0, total - 1, extra, dtype=int)
+    # Каждый раз, когда индекс встречается в extra_indices, увеличиваем
+    # количество повторов соответствующего кадра на 1
+    for idx in extra_indices:
+        repeat_counts[idx] += 1
+
+    # Собираем финальный список: кадры идут по времени,
+    # каждый дублируется repeat_counts[i] раз
+    upsampled = []
+    for (item, r) in zip(frame_data, repeat_counts):
+        upsampled.extend([item] * r)
+
+    # На всякий случай, проверим длину
+    if len(upsampled) != num_frames:
+        logger.warning(
+            f"Ожидалось {num_frames} кадров после апсемплинга, "
+            f"получили {len(upsampled)}. Поправим за счёт обрезки/дублирования."
+        )
+        if len(upsampled) > num_frames:
+            upsampled = upsampled[:num_frames]
+        else:
+            # если вдруг не хватает, дублируем последний
+            while len(upsampled) < num_frames:
+                upsampled.append(upsampled[-1])
+
+    return upsampled
 
 def extract_frames(video_path, output_folder, num_frames=40, method='window'):
     """
