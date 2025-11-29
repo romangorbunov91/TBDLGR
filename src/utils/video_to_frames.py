@@ -43,7 +43,7 @@ if __name__ == "__main__":
     annotations = np.genfromtxt(
         csv_path,
         delimiter=',',
-        usecols=1,
+        usecols=0, # 'attachment_id'
         skip_header=1,
         dtype=str,          # ← critical: read as string
         encoding='utf-8'    # ← good practice for non-English text
