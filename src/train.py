@@ -222,7 +222,6 @@ class GestureTrainer(object):
             self.update_metrics("train", loss.item(), inputs.size(0),
                                 float((predicted==correct).sum()) / len(correct))
 
-
     def __val(self):
         """Validation function."""
         self.net.eval()
