@@ -29,10 +29,10 @@ class MediaPipeBackbone(nn.Module):
     def _process_mediapipe(self, x):
         """Обрабатывает изображение с помощью MediaPipe Hands"""
         # Преобразуем изображение из BGR (OpenCV) в RGB (формат для MediaPipe)
-        image_rgb = cv2.cvtColor(x, cv2.COLOR_BGR2RGB)
+        # image_rgb = cv2.cvtColor(x, cv2.COLOR_BGR2RGB)
         
         # Применяем MediaPipe для извлечения ключевых точек
-        results = self.mp_hands.process(image_rgb)
+        results = self.mp_hands.process(x)
         
         # Если руки найдены, извлекаем их ключевые точки
         if results.multi_hand_landmarks:
