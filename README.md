@@ -103,6 +103,7 @@ python src/main.py --hypes src/hyperparameters/Bukva/train.json --resume checkpo
 * [Станислава Иваненко](https://github.com/smthCreate)
 * [Максим Шугаев](https://github.com/knjii)
 * [Анжелина Абдулаева](https://github.com/anzhelina0)
+* [Кирилл Зайцев]()
 
 ## License
 

@@ -187,7 +187,7 @@ def extract_frames(video_path, output_folder, num_frames=40, method='window'):
     for i, (frame_idx, score) in enumerate(selected_data):
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
         ret, frame = cap.read()
-        frame = cv2.resize(frame, (640, 480))
+        frame = cv2.resize(frame, (224, 224))
         if ret:
             # Имя файла: frame_000.jpg, frame_001.jpg... (гарантирует хронологию)
             frame_filename = os.path.join(output_folder, f"frame_{i:03d}.jpg")
