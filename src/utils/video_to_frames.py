@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # ================= ГИПЕРПАРАМЕТРЫ =================
 # Перечень файлов.
-annotations_file_name = 'annotations_cut.csv'
+annotations_file_name = 'annotations.csv'
 
 # Папка, где лежат исходные видео
 SOURCE_FOLDER = './datasets/Bukva/'
