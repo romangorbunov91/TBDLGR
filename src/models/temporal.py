@@ -4,11 +4,14 @@ from models.backbones.vgg import vgg16, vgg16_bn
 from models.backbones import c3d
 from models.backbones.r3d import r3d_18, r2plus1d_18
 from models.attention import EncoderSelfAttention
+from models.backbones.mediapipe_backbone import MediaPipeBackbone
 
+# Добавляем обработчик для MediaPipe в словарь backbone_dict
 backbone_dict = {'resnet': resnet18,
                  'vgg': vgg16, 'vgg_bn': vgg16_bn,
                  'c3d': c3d,
-                 'r3d': r3d_18, 'r2plus1d': r2plus1d_18}
+                 'r3d': r3d_18, 'r2plus1d': r2plus1d_18,
+                 'mediapipe': 'mediapipe'}  # Для проверки по строке
 
 class _GestureTransformer(nn.Module):
     """Multi Modal model for gesture recognition on 3 channel"""
@@ -18,7 +21,10 @@ class _GestureTransformer(nn.Module):
         super(_GestureTransformer, self).__init__()
 
         self.in_planes = in_planes
-        self.backbone = backbone(pretrained, in_planes, dropout=dropout_backbone)
+        if backbone == 'mediapipe':
+            self.backbone = MediaPipeBackbone(in_planes, out_planes, **kwargs)
+        else:
+            self.backbone = backbone(pretrained, in_planes, dropout=dropout_backbone)
 
         self.self_attention = EncoderSelfAttention(512, 64, 64, **kwargs)
 
