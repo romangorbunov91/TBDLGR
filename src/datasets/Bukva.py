@@ -7,6 +7,7 @@ import pandas as pd
 
 from torch.utils.data.dataset import Dataset
 
+#from datasets.utils.normalize import normalize
 from datasets.utils.normalize import normalize
 
 class Bukva(Dataset):
