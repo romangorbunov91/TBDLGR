@@ -27,7 +27,7 @@
       "decay_steps": [50, 75]
     },
     "network":{
-      "backbone": "resnet",
+      "backbone": "mediapipe",
       "pretrained": true,
       "ff_size": 1024,
       "n_head": 8,

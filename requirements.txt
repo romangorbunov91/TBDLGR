@@ -32,6 +32,6 @@ setuptools==80.9.0
 six==1.17.0
 sounddevice==0.5.3
 sympy==1.13.1
-./torch-2.6.0+cu126-cp312-cp312-win_amd64.whl
-./torchaudio-2.6.0+cu126-cp312-cp312-win_amd64.whl
+# ./torch-2.6.0+cu126-cp312-cp312-win_amd64.whl
+# ./torchaudio-2.6.0+cu126-cp312-cp312-win_amd64.whl
 typing_extensions==4.15.0
