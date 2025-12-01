@@ -18,6 +18,16 @@ if torch.cuda.is_available():
 
 
 if __name__ == "__main__":
+    import os
+    import sys
+
+
+    # Путь к каталогу с виртуальным окружением
+    venv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.venv/Lib/'))
+    sys.path.append(venv_path)
+
+    print(os.getcwd())  # Печатает текущую рабочую директорию
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--disable-cuda', action='store_true',
                         help='Disable CUDA')

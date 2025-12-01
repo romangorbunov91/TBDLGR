@@ -89,7 +89,7 @@ For every other information check the file.
 
 ## Usage TRAIN
 ```
-python src/main.py --hypes src/hyperparameters/Briareo/train.json 
+python src/main.py --hypes src/hyperparameters/Bukva/train.json 
 ```
 ## Usage from saved weights (TEST or continue TRAIN)
 ```
