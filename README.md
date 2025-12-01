@@ -116,3 +116,7 @@ pip freeze > requirements.txt
 ```
 pip install git+https://github.com/aleju/imgaug.git@0101108d4fed06bc5056c4a03e2bcb0216dac326
 ```
+
+```
+python src/utils/media_pipe.py
+```
