@@ -1,4 +1,6 @@
 import argparse
+import os
+import sys
 
 from train import GestureTrainer
 from test import GestureTest
@@ -18,10 +20,7 @@ if torch.cuda.is_available():
 
 
 if __name__ == "__main__":
-    import os
-    import sys
-
-
+    
     # Путь к каталогу с виртуальным окружением
     venv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.venv/Lib/'))
     sys.path.append(venv_path)
@@ -50,6 +49,7 @@ if __name__ == "__main__":
         args.device = torch.device('cpu')
 
     torch.autograd.set_detect_anomaly(True)
+    args.hypes = 'src/hyperparameters/Bukva/train.json'
     configer = Configer(args)
     phase = args.phase if args.phase is not None else configer.params.get('phase')
     if phase == 'train':
