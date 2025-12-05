@@ -3,18 +3,18 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn as nn
-import cv2
 
 from torch.utils.data import DataLoader
 import imgaug.augmenters as iaa
 
 # Import Datasets
+from datasets.Bukva import Bukva
 from datasets.Briareo import Briareo
 from datasets.NVGestures import NVGesture
 from models.model_utilizer import ModuleUtilizer
 
 # Import Model
-from models.temporal_fusion import GestureTransformerFusion
+from models.temporal import GestureTransoformer
 from torch.optim.lr_scheduler import MultiStepLR
 
 # Import loss
@@ -27,38 +27,6 @@ from tensorboardX import SummaryWriter
 # Setting seeds
 def worker_init_fn(worker_id):
     np.random.seed(torch.initial_seed() % 2 ** 32)
-
-
-def process_mediapipe_frames(frames):
-    """
-    Adapted from sharper_frames.process_mediapipe: runs MediaPipe on a list of BGR images and
-    returns landmark coordinates (T, 21, 3) in normalized image space. No file I/O.
-    """
-    if frames is None or len(frames) == 0:
-        return np.zeros((0, 21, 3), dtype=np.float32)
-
-    try:
-        import mediapipe as mp
-    except ImportError as exc:
-        raise ImportError("mediapipe is required for landmark extraction.") from exc
-
-    mp_hands = mp.solutions.hands
-    coords = np.zeros((len(frames), 21, 3), dtype=np.float32)
-
-    with mp_hands.Hands(
-        static_image_mode=True,
-        max_num_hands=1,
-        min_detection_confidence=0.5) as hands:
-
-        for idx, img in enumerate(frames):
-            if img is None:
-                continue
-            results = hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-            if results.multi_hand_landmarks:
-                hand = results.multi_hand_landmarks[0]
-                coords[idx] = np.array([(lm.x, lm.y, lm.z) for lm in hand.landmark], dtype=np.float32)
-
-    return coords
 
 class GestureTrainer(object):
     """Gesture Recognition Train class
@@ -147,14 +115,14 @@ class GestureTrainer(object):
         self.loss = nn.CrossEntropyLoss().to(self.device)
 
         # Selecting correct model and normalization variable based on type variable
-        self.net = GestureTransformerFusion(self.backbone, self.in_planes, self.n_classes,
-                                            pretrained=self.configer.get("network", "pretrained"),
-                                            n_head=self.configer.get("network", "n_head"),
-                                            dropout_backbone=self.configer.get("network", "dropout2d"),
-                                            dropout_transformer=self.configer.get("network", "dropout1d"),
-                                            dff=self.configer.get("network", "ff_size"),
-                                            n_module=self.configer.get("network", "n_module"),
-                                            landmark_dim=63)
+        self.net = GestureTransoformer(self.backbone, self.in_planes, self.n_classes,
+                                       pretrained=self.configer.get("network", "pretrained"),
+                                       n_head=self.configer.get("network", "n_head"),
+                                       dropout_backbone=self.configer.get("network", "dropout2d"),
+                                       dropout_transformer=self.configer.get("network", "dropout1d"),
+                                       dff=self.configer.get("network", "ff_size"),
+                                       n_module=self.configer.get("network", "n_module")
+                                       )
 
         # Initializing training
         self.iters = 0
@@ -188,7 +156,14 @@ class GestureTrainer(object):
                 iaa.Rotate((-15, 15))
             ])
             self.val_transforms = iaa.CenterCropToFixedSize(200, 200)
-
+        elif self.dataset == "bukva":
+            Dataset = Bukva
+            self.train_transforms = iaa.Sequential([
+                iaa.Resize((0.85, 1.15)),
+                iaa.CropToFixedSize(width=190, height=190),
+                iaa.Rotate((-15, 15))
+            ])
+            self.val_transforms = iaa.CenterCropToFixedSize(200, 200)
         elif self.dataset == "nvgestures":
             Dataset = NVGesture
             self.train_transforms = iaa.Sequential([
@@ -229,10 +204,9 @@ class GestureTrainer(object):
             input, gt
             """
             inputs = data_tuple[0].to(self.device)
-            landmarks = self._extract_landmarks_batch(inputs)
             gt = data_tuple[1].to(self.device)
 
-            output = self.net((inputs, landmarks))
+            output = self.net(inputs)
 
             self.optimizer.zero_grad()
             loss = self.loss(output, gt.squeeze(dim=1))
@@ -248,7 +222,6 @@ class GestureTrainer(object):
             self.update_metrics("train", loss.item(), inputs.size(0),
                                 float((predicted==correct).sum()) / len(correct))
 
-
     def __val(self):
         """Validation function."""
         self.net.eval()
@@ -260,10 +233,9 @@ class GestureTrainer(object):
                 input, gt
                 """
                 inputs = data_tuple[0].to(self.device)
-                landmarks = self._extract_landmarks_batch(inputs)
                 gt = data_tuple[1].to(self.device)
 
-                output = self.net((inputs, landmarks))
+                output = self.net(inputs)
                 loss = self.loss(output, gt.squeeze(dim=1))
 
                 predicted = torch.argmax(output.detach(), dim=1)
@@ -275,6 +247,7 @@ class GestureTrainer(object):
 
         self.tbx_summary.add_scalar('val_loss', self.losses["val"].avg, self.epoch + 1)
         self.tbx_summary.add_scalar('val_accuracy', self.accuracy["val"].avg, self.epoch + 1)
+        print("VAL  accuracy: {:.4f}".format(self.accuracy["val"].avg))
         accuracy = self.accuracy["val"].avg
         self.accuracy["val"].reset()
         self.losses["val"].reset()
@@ -296,10 +269,9 @@ class GestureTrainer(object):
                 input, gt
                 """
                 inputs = data_tuple[0].to(self.device)
-                landmarks = self._extract_landmarks_batch(inputs)
                 gt = data_tuple[1].to(self.device)
 
-                output = self.net((inputs, landmarks))
+                output = self.net(inputs)
                 loss = self.loss(output, gt.squeeze(dim=1))
 
                 predicted = torch.argmax(output.detach(), dim=1)
@@ -310,6 +282,7 @@ class GestureTrainer(object):
                                     float((predicted == correct).sum()) / len(correct))
         self.tbx_summary.add_scalar('test_loss', self.losses["test"].avg, self.epoch + 1)
         self.tbx_summary.add_scalar('test_accuracy', self.accuracy["test"].avg, self.epoch + 1)
+        print("TEST accuracy: {:.4f}".format(self.accuracy["test"].avg))
         self.losses["test"].reset()
         self.accuracy["test"].reset()
 
@@ -333,36 +306,3 @@ class GestureTrainer(object):
             self.tbx_summary.add_scalar('{}_accuracy'.format(split), self.accuracy[split].avg, self.iters)
             self.losses[split].reset()
             self.accuracy[split].reset()
-
-    def _extract_landmarks_batch(self, frames: torch.Tensor):
-        """
-        Convert stacked frames tensor (B, in_planes*T, H, W) to per-frame BGR images,
-        run MediaPipe, and return landmarks tensor (B, T, 21, 3) on the same device.
-        """
-        b, _, h, w = frames.shape
-        n_frames = frames.shape[1] // self.in_planes
-        frames = frames.view(b, n_frames, self.in_planes, h, w)
-        landmarks = torch.zeros((b, n_frames, 21, 3), dtype=torch.float32, device=self.device)
-
-        for bi in range(b):
-            imgs = []
-            for ti in range(n_frames):
-                img = frames[bi, ti].detach().cpu()
-                if self.in_planes >= 3:
-                    img_np = img[:3].permute(1, 2, 0).numpy()
-                else:
-                    img_np = img[0].unsqueeze(0).repeat(3, 1, 1).permute(1, 2, 0).numpy()
-
-                # Rescale normalized tensor to 0-255 for MediaPipe.
-                img_np = img_np - img_np.min()
-                max_val = img_np.max()
-                if max_val > 0:
-                    img_np = img_np / max_val
-                img_np = (img_np * 255).astype(np.uint8)
-                imgs.append(img_np)
-
-            coords = process_mediapipe_frames(imgs)
-            if coords.shape[0] == n_frames:
-                landmarks[bi] = torch.from_numpy(coords).to(self.device)
-
-        return landmarks
