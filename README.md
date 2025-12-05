@@ -56,7 +56,7 @@ Run the command:
 pip install -r requirements.txt
 ```
 
-Replace in `\.venv\Lib\site-packages\imgaug\imgaug.py`
+In `\.venv\Lib\site-packages\imgaug\imgaug.py` replace to
 ```
 NP_FLOAT_TYPES = {np.float16, np.float32, np.float64}
 NP_INT_TYPES = {np.int8, np.int16, np.int32, np.int64}
@@ -87,11 +87,15 @@ In there, you can set several parameters, like:
 
 For every other information check the file.
 
-## Usage
+## Usage TRAIN
 ```
-python src/main.py --hypes src/hyperparameters/Bukva/train.json 
+python src/main.py --hypes src/hyperparameters/Briareo/train.json 
 ```
-- `--hypes`, path to configuration file.
+## Usage from saved weights (TEST or continue TRAIN)
+```
+python src/main.py --hypes src/hyperparameters/Briareo/train.json --resume checkpoints/Briareo/best_train_briareo.pth
+python src/main.py --hypes src/hyperparameters/Bukva/train.json --resume checkpoints/Bukva/best_train_bukva.pth
+```
 
 ## Authors
 
@@ -99,6 +103,7 @@ python src/main.py --hypes src/hyperparameters/Bukva/train.json
 * [Станислава Иваненко](https://github.com/smthCreate)
 * [Максим Шугаев](https://github.com/knjii)
 * [Анжелина Абдулаева](https://github.com/anzhelina0)
+* [Кирилл Зайцев]()
 
 ## License
 
@@ -110,4 +115,8 @@ pip freeze > requirements.txt
 
 ```
 pip install git+https://github.com/aleju/imgaug.git@0101108d4fed06bc5056c4a03e2bcb0216dac326
+```
+
+```
+python src/utils/media_pipe.py
 ```
