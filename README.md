@@ -89,7 +89,7 @@ For every other information check the file.
 
 ## Usage
 ```
-python src/main.py --hypes src/hyperparameters/Briareo/train.json 
+python src/main.py --hypes src/hyperparameters/Bukva/train.json 
 ```
 - `--hypes`, path to configuration file.
 

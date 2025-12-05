@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 import imgaug.augmenters as iaa
 
 # Import Datasets
+from datasets.Bukva import Bukva
 from datasets.Briareo import Briareo
 from datasets.NVGestures import NVGesture
 from models.model_utilizer import ModuleUtilizer
@@ -155,7 +156,14 @@ class GestureTrainer(object):
                 iaa.Rotate((-15, 15))
             ])
             self.val_transforms = iaa.CenterCropToFixedSize(200, 200)
-
+        elif self.dataset == "bukva":
+            Dataset = Bukva
+            self.train_transforms = iaa.Sequential([
+                iaa.Resize((0.85, 1.15)),
+                iaa.CropToFixedSize(width=190, height=190),
+                iaa.Rotate((-15, 15))
+            ])
+            self.val_transforms = iaa.CenterCropToFixedSize(200, 200)
         elif self.dataset == "nvgestures":
             Dataset = NVGesture
             self.train_transforms = iaa.Sequential([
@@ -214,7 +222,6 @@ class GestureTrainer(object):
             self.update_metrics("train", loss.item(), inputs.size(0),
                                 float((predicted==correct).sum()) / len(correct))
 
-
     def __val(self):
         """Validation function."""
         self.net.eval()
@@ -240,6 +247,7 @@ class GestureTrainer(object):
 
         self.tbx_summary.add_scalar('val_loss', self.losses["val"].avg, self.epoch + 1)
         self.tbx_summary.add_scalar('val_accuracy', self.accuracy["val"].avg, self.epoch + 1)
+        print("VAL  accuracy: {:.4f}".format(self.accuracy["val"].avg))
         accuracy = self.accuracy["val"].avg
         self.accuracy["val"].reset()
         self.losses["val"].reset()
@@ -274,6 +282,7 @@ class GestureTrainer(object):
                                     float((predicted == correct).sum()) / len(correct))
         self.tbx_summary.add_scalar('test_loss', self.losses["test"].avg, self.epoch + 1)
         self.tbx_summary.add_scalar('test_accuracy', self.accuracy["test"].avg, self.epoch + 1)
+        print("TEST accuracy: {:.4f}".format(self.accuracy["test"].avg))
         self.losses["test"].reset()
         self.accuracy["test"].reset()
 

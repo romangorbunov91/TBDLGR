@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 import imgaug.augmenters as iaa
 
 # Import Datasets
+from datasets.Bukva import Bukva
 from datasets.Briareo import Briareo
 from datasets.NVGestures import NVGesture
 from models.model_utilizer import ModuleUtilizer
@@ -57,7 +58,7 @@ class GestureTest(object):
         self.transforms = None
 
         # Other useful data
-        self.backbone = self.configer.get("network", "backbone")     #: str: Backbone type
+        self.backbone = self.configer.get("network", "backbone")    #: str: Backbone type
         self.in_planes = None                                       #: int: Input channels
         self.clip_length = self.configer.get("data", "n_frames")    #: int: Number of frames per sequence
         self.n_classes = self.configer.get("data", "n_classes")     #: int: Total number of classes for dataset
@@ -90,7 +91,10 @@ class GestureTest(object):
         self.net, _, _, _ = self.model_utility.load_net(self.net)
 
         # Selecting Dataset and DataLoader
-        if self.dataset == "briareo":
+        if self.dataset == "bukva":
+            Dataset = Bukva
+            self.transforms = iaa.CenterCropToFixedSize(200, 200)
+        elif self.dataset == "briareo":
             Dataset = Briareo
             self.transforms = iaa.CenterCropToFixedSize(200, 200)
         elif self.dataset == "nvgestures":
@@ -131,7 +135,7 @@ class GestureTest(object):
 
         accuracy = c / tot
 
-        print("Accuracy: {}".format(accuracy))
+        print("Accuracy: {:.4f}".format(accuracy))
 
     def test(self):
         self.__test()
