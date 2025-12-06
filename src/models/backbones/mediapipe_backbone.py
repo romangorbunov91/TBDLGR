@@ -63,13 +63,13 @@ class MediaPipeBackbone(nn.Module):
 
         # Применяем полносвязный слой для преобразования landmarks в признаки
         x = self.fc(batch_landmarks)  # Преобразуем landmarks в признаки
-        print(f"Output shape from MediaPipeBackbone: {x.shape}")
+        # print(f"Output shape from MediaPipeBackbone: {x.shape}")
 
         # Применяем пулинг
         x = self.pool(x).squeeze(dim=1)
-        print(f"Output shape from MediaPipeBackbone after pooling: {x.shape}")
+        # print(f"Output shape from MediaPipeBackbone after pooling: {x.shape}")
         x = x.view(x.size(0), -1)
-        print(f"Output shape from MediaPipeBackbone before classifier: {x.shape}")
+        # print(f"Output shape from MediaPipeBackbone before classifier: {x.shape}")
         # Классификация
         # x = self.classifier(x)
         # print(f"Output shape from MediaPipeBackbone after classifier: {x.shape}")
