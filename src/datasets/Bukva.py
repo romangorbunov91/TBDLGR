@@ -76,5 +76,5 @@ class Bukva(Dataset):
 
         clip = torch.from_numpy(clip.reshape(clip.shape[0], clip.shape[1], -1).transpose(2, 0, 1))
         label = torch.LongTensor(np.asarray([label]))
-        print('done')
+        # print('done')
         return clip.float(), label

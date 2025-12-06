@@ -282,6 +282,7 @@ class GestureTrainer(object):
                                     float((predicted == correct).sum()) / len(correct))
         self.tbx_summary.add_scalar('test_loss', self.losses["test"].avg, self.epoch + 1)
         self.tbx_summary.add_scalar('test_accuracy', self.accuracy["test"].avg, self.epoch + 1)
+        print("Accuracy: {:.4f}".format(self.accuracy["test"].avg))
         self.losses["test"].reset()
         self.accuracy["test"].reset()
 
