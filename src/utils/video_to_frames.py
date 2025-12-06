@@ -23,7 +23,7 @@ SOURCE_FOLDER = './datasets/Bukva/'
 
 # Корневые папки для результатов
 OUTPUT_SHARP_ROOT = Path('./datasets/Bukva/frames')          # Чистые кадры
-#OUTPUT_MPIPE_ROOT = Path('sharp_frames_mpipe')    # Кадры с разметкой
+OUTPUT_MPIPE_ROOT = Path('sharp_frames_mpipe')    # Кадры с разметкой
 
 # Сколько кадров нужно извлечь
 TARGET_FRAMES = 40
@@ -80,7 +80,7 @@ if __name__ == "__main__":
                 # sharp_frames/video1/
                 current_sharp_output = OUTPUT_SHARP_ROOT / video_stem
                 # sharp_frames_mpipe/video1/
-                #current_mpipe_output = OUTPUT_MPIPE_ROOT / video_stem
+                current_mpipe_output = OUTPUT_MPIPE_ROOT / video_stem
                 
                 # 1. Запускаем извлечение кадров (через модуль)
                 saved_frames = sharper_frames.extract_frames(
@@ -89,14 +89,14 @@ if __name__ == "__main__":
                     num_frames=TARGET_FRAMES,
                     method=SELECTION_METHOD
                 )
-                '''
+            
                 # 2. Запускаем валидацию MediaPipe (если кадры извлеклись)
                 if saved_frames:
                     sharper_frames.process_mediapipe(
                         pictures=saved_frames, 
                         out_dir_name=current_mpipe_output
                     )
-                '''
+                
                 logger.info("-" * TARGET_FRAMES)
                 files_found.append(f_name)
 
