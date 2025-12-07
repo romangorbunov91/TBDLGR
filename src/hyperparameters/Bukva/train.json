@@ -1,7 +1,7 @@
 {
     "name": "Gesture Recognition",
     "dataset": "Bukva",
-    "epochs": 100,
+    "epochs": 75,
     "phase": "train",
     "data": {
       "optical_flow": false,

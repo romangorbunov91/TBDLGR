@@ -11,7 +11,7 @@ from datasets.NVGestures import NVGesture
 from models.model_utilizer import ModuleUtilizer
 
 # Import Model
-from models.temporal import GestureTransoformer
+from models.temporal_fusion import GestureTransformerFusion
 
 # Import Utils
 from tqdm import tqdm
@@ -79,14 +79,14 @@ class GestureTest(object):
             self.in_planes = 3
 
         # Selecting correct model and normalization variable based on type variable
-        self.net = GestureTransoformer(self.backbone, self.in_planes, self.n_classes,
-                                       pretrained=self.configer.get("network", "pretrained"),
-                                       n_head=self.configer.get("network", "n_head"),
-                                       dropout_backbone=self.configer.get("network", "dropout2d"),
-                                       dropout_transformer=self.configer.get("network", "dropout1d"),
-                                       dff=self.configer.get("network", "ff_size"),
-                                       n_module=self.configer.get("network", "n_module")
-                                       )
+        self.net = GestureTransformerFusion(self.backbone, self.in_planes, self.n_classes,
+                                            pretrained=self.configer.get("network", "pretrained"),
+                                            n_head=self.configer.get("network", "n_head"),
+                                            dropout_backbone=self.configer.get("network", "dropout2d"),
+                                            dropout_transformer=self.configer.get("network", "dropout1d"),
+                                            dff=self.configer.get("network", "ff_size"),
+                                            n_module=self.configer.get("network", "n_module"),
+                                            landmark_dim=63)
 
         self.net, _, _, _ = self.model_utility.load_net(self.net)
 
