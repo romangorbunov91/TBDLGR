@@ -4,7 +4,6 @@ import os
 import mediapipe as mp
 import logging
 
-# Получаем логгер (он настраивается в main.py)
 logger = logging.getLogger(__name__)
 
 def calculate_sharpness(frame):
@@ -136,18 +135,13 @@ def extract_frames(video_path, output_folder, num_frames=40, method='window'):
     """
     Основная функция: читает видео, выбирает кадры и сохраняет их.
     """
-    video_name = os.path.basename(video_path)
-    logger.info(f"--- Обработка видео: {video_name} ---")
-    
+
     cap = cv2.VideoCapture(video_path)
     
     if not cap.isOpened():
-        logger.error(f"Не удалось открыть видеофайл: {video_path}.")
+        print(f"Не удалось открыть видеофайл: {video_path}.")
         return []
-
-    total_frames_est = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    logger.info(f"Всего кадров ~{total_frames_est}. Метод отбора: {method.upper()}")
-    
+   
     # 1. Считываем метаданные всех кадров
     frame_sharpness = []
     frame_count = 0
@@ -204,58 +198,56 @@ def extract_frames(video_path, output_folder, num_frames=40, method='window'):
     logger.info(f"Сохранено {len(saved_files)} кадров в '{output_folder}'.")
     return saved_files
 
-def process_mediapipe(pictures, out_dir_name):
-    """
-    Рисует скелет руки на сохраненных кадрах для валидации.
-    """
-    if not pictures:
-        return
-
-    logger.info(f"--- MediaPipe валидация для {len(pictures)} кадров ---")
-    
+def process_mediapipe(img_set):
     mp_drawing = mp.solutions.drawing_utils
     mp_drawing_styles = mp.solutions.drawing_styles
     mp_hands = mp.solutions.hands
 
-    if not os.path.exists(out_dir_name):
-        os.makedirs(out_dir_name, exist_ok=True)
-
+    # Инициализация модели MediaPipe Hands.
     with mp_hands.Hands(
-        static_image_mode=True,
-        max_num_hands=2,
-        min_detection_confidence=0.5) as hands:
-        
-        processed_count = 0
-        for idx, file in enumerate(pictures):
-            if not os.path.exists(file):
-                continue
+        static_image_mode=False,
+        max_num_hands=1,
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5) as hands:
 
-            # Читаем оригинал
-            original_image = cv2.imread(file)
-            if original_image is None:
-                continue
-            
-            # Флипаем для MP (зеркалирование)
-            image = cv2.flip(original_image, 1)
-            results = hands.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-            
-            if not results.multi_hand_landmarks:
-                continue
+        annotated_img_set = []
+        annotated_cnt = 0
+        # Перебираем все изображения.
+        for img in img_set:
 
-            annotated_image = image.copy()
-            for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(
-                    annotated_image,
-                    hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS,
-                    mp_drawing_styles.get_default_hand_landmarks_style(),
-                    mp_drawing_styles.get_default_hand_connections_style()
-                )
+            # Обрабатываем изображение с помощью MediaPipe.
+            results = hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
             
-            # Флипаем обратно и сохраняем
-            base_name = os.path.basename(file)
-            output_filename = os.path.join(out_dir_name, f"annotated_{base_name}")
-            cv2.imwrite(output_filename, cv2.flip(annotated_image, 1))
-            processed_count += 1
-            
-        logger.info(f"MediaPipe завершен. Размечено: {processed_count}")
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    mp_drawing.draw_landmarks(
+                        img,
+                        hand_landmarks,
+                        mp_hands.HAND_CONNECTIONS,
+                        mp_drawing_styles.get_default_hand_landmarks_style(),
+                        mp_drawing_styles.get_default_hand_connections_style()
+                    )
+                annotated_cnt += 1
+            annotated_img_set.append(img)
+    
+    logger.info(f"Размечены {annotated_cnt} из {len(img_set)} кадров.")
+    return annotated_img_set
+
+
+def read_images(files, root):
+    img_set = []
+    for file in files:
+        img_set.append(cv2.flip(cv2.imread(os.path.join(root, file)), 1))
+    return img_set
+
+
+def save_images(img_set, out_dir_path, resize_flag=False):
+    for idx, img in enumerate(img_set):
+        output_filename = os.path.join(out_dir_path, f"frame_{idx:03d}.jpg")
+        if resize_flag:
+            cv2.imwrite(output_filename, cv2.flip(cv2.resize(img, (224, 224)), 1))
+        else:
+            cv2.imwrite(output_filename, cv2.flip(img, 1))
+    
+    logger.info(f"Сохранено {len(img_set)} кадров {out_dir_path}")
+
