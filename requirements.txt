@@ -22,6 +22,7 @@ jax==0.7.1
 jaxlib==0.7.1
 jedi==0.19.2
 Jinja2==3.1.6
+joblib==1.5.2
 jupyter_client==8.6.3
 jupyter_core==5.9.1
 kiwisolver==1.4.9
@@ -29,12 +30,12 @@ lazy_loader==0.4
 MarkupSafe==3.0.3
 matplotlib==3.10.7
 matplotlib-inline==0.2.1
-mediapipe==0.10.21
+mediapipe==0.10.13
 ml_dtypes==0.5.4
 mpmath==1.3.0
 nest-asyncio==1.6.0
 networkx==3.5
-numpy==2.2.6
+numpy==1.26.4
 opencv-contrib-python==4.11.0.86
 opencv-python==4.12.0.88
 opt_einsum==3.4.0
@@ -54,7 +55,9 @@ python-dateutil==2.9.0.post0
 pytz==2025.2
 pyzmq==27.1.0
 scikit-image==0.25.2
+scikit-learn==1.7.2
 scipy==1.16.3
+seaborn==0.13.2
 sentencepiece==0.2.1
 setuptools==80.9.0
 shapely==2.1.2
@@ -63,6 +66,7 @@ sounddevice==0.5.3
 stack-data==0.6.3
 sympy==1.13.1
 tensorboardX==2.6.4
+threadpoolctl==3.6.0
 tifffile==2025.10.16
 torch @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torch-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=b10c39c83e5d1afd639b5c9f5683b351e97e41390a93f59c59187004a9949924
 torchaudio @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torchaudio-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=144b286d2f6195ba8d75ed1a568bddd718d032d54d1bf94940d47730c6321a0b

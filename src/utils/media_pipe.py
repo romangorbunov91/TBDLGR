@@ -11,12 +11,12 @@ def media_pipe(root, files, out_dir_path):
     # Инициализация модели MediaPipe Hands.
     with mp_hands.Hands(
         static_image_mode=False,
-        max_num_hands=2,
+        max_num_hands=1,
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5) as hands:
         
         cnt = 0
-        # Перебираем все изображения
+        # Перебираем все изображения.
         for idx, file in enumerate(files):
             
             # Читаем изображение.
@@ -47,39 +47,15 @@ def media_pipe(root, files, out_dir_path):
         
         print(f"Сохранено {cnt} кадров: {out_dir_path}")
 
-# Пример использования.
-
 if __name__ == "__main__":
-    # Папка с исходными изображениями
-    in_folder = 'photo'
-    
-    # Папка для сохранения обработанных изображений
+    # Source folder.
+    in_folder = 'frames'
+    # Destination folder.
     out_folder = 'mediapipe_frames'
-    
-    # Получаем текущую директорию
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # Путь к папке с исходными изображениями
-    photos_path = os.path.join(current_dir, in_folder)
-    
-    # Путь для выходных данных
-    out_path = os.path.join(current_dir, out_folder)
-
-    # Проверяем, существует ли папка 'photos'
-    if not os.path.exists(photos_path):
-        print(f"Ошибка: Папка {photos_path} не найдена!")
-    else:
-        print(f"Папка с изображениями найдена: {photos_path}")
-    
-    # Перебираем все файлы в папке 'photos'
-    for root, dirs, files in os.walk(photos_path):
-        # Создаем выходную директорию для каждого подкаталога
-        out_dir_path = root.replace(photos_path, out_path)
-        
-        # Проверяем, существует ли папка для выходных данных
+          
+    for root, dirs, files in os.walk(os.path.join('./datasets/Bukva/', in_folder)):
+        out_dir_path = root.replace(in_folder, out_folder)
         if not os.path.exists(out_dir_path):
-            print(f"Создаём папку: {out_dir_path}")
             os.makedirs(out_dir_path)  
 
-        # Вызываем функцию обработки
         media_pipe(root, files, out_dir_path)

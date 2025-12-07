@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     logger.info(f"Начинаем обработку. Метод: {SELECTION_METHOD}, Цель: {TARGET_FRAMES} кадров.")
 
-    # Рекурсивный обход папок
+    # Рекурсивный обход папок.
     for root, dirs, files in os.walk(SOURCE_FOLDER + 'video'):
         logger.info(f"Сканирование папки: {root}. Найдено файлов: {len(files)}")
         
