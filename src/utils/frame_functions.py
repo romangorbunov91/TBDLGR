@@ -234,10 +234,15 @@ def process_mediapipe(img_set):
     return annotated_img_set
 
 
-def read_images(files, root):
+def read_images(dir_path, file_extensions):
+    img_names = [
+        img for img in os.listdir(dir_path)
+        if os.path.isfile(os.path.join(dir_path, img)) 
+        and img.lower().endswith(file_extensions)
+        ]
     img_set = []
-    for file in files:
-        img_set.append(cv2.flip(cv2.imread(os.path.join(root, file)), 1))
+    for img in img_names:
+        img_set.append(cv2.flip(cv2.imread(os.path.join(dir_path, img)), 1))
     return img_set
 
 
@@ -251,3 +256,8 @@ def save_images(img_set, out_dir_path, resize_flag=False):
     
     logger.info(f"Сохранено {len(img_set)} кадров {out_dir_path}")
 
+
+def dataset_check(dir_items, full_list):
+    items_left = [item for item in full_list.tolist() if item not in set(dir_items)]
+    if items_left:
+        raise FileNotFoundError(f"Files from annotation that has not been found: {items_left}")
