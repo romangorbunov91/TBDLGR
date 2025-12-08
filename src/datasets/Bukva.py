@@ -8,6 +8,7 @@ import pandas as pd
 from torch.utils.data.dataset import Dataset
 
 from datasets.utils.normalize import normalize
+import mediapipe as mp
 
 class Bukva(Dataset):
     """Bukva Dataset class"""
@@ -68,12 +69,15 @@ class Bukva(Dataset):
         paths = self.data[idx]['data']
         label = self.data[idx]['label']
 
+        raw_frames = []
         clip = list()
         for p in paths:
             img = cv2.imread(str(self.dataset_path / p), cv2.IMREAD_COLOR)
             img = cv2.resize(img, (224, 224))
-            clip.append(img)
+            raw_frames.append(img)
+            clip.append(img.copy())
 
+        landmarks = self._extract_landmarks_from_frames(raw_frames)
         clip = np.array(clip).transpose(1, 2, 3, 0)
         clip = normalize(clip)
 
@@ -82,5 +86,19 @@ class Bukva(Dataset):
             clip = np.array([aug_det.augment_image(clip[..., i]) for i in range(clip.shape[-1])]).transpose(1, 2, 3, 0)
 
         clip = torch.from_numpy(clip.reshape(clip.shape[0], clip.shape[1], -1).transpose(2, 0, 1))
+        landmarks = torch.from_numpy(landmarks)
         label = torch.LongTensor(np.asarray([label]))
-        return clip.float(), label
+        return (clip.float(), landmarks.float()), label
+
+    def _extract_landmarks_from_frames(self, frames):
+        """Run MediaPipe Hands on list of BGR frames, return (T,21,3) array."""
+        coords = np.zeros((len(frames), 21, 3), dtype=np.float32)
+        with mp.solutions.hands.Hands(static_image_mode=True,
+                                      max_num_hands=1,
+                                      min_detection_confidence=0.5) as hands:
+            for idx, img in enumerate(frames):
+                results = hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+                if results.multi_hand_landmarks:
+                    hand = results.multi_hand_landmarks[0]
+                    coords[idx] = np.array([(lm.x, lm.y, lm.z) for lm in hand.landmark], dtype=np.float32)
+        return coords

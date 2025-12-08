@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 import torch.nn as nn
 
@@ -64,7 +63,6 @@ class _GestureTransformerFusion(nn.Module):
 
         self.pool = nn.AdaptiveAvgPool1d(1)
         self.classifier = nn.Linear(512, out_planes)
-        self._mp_hands = None
 
     def forward(self, inputs):
         if isinstance(inputs, (list, tuple)):
@@ -77,7 +75,7 @@ class _GestureTransformerFusion(nn.Module):
         n_frames = frames.shape[1] // self.in_planes
 
         if landmarks is None:
-            landmarks = self._extract_landmarks_from_frames(frames, n_frames)
+            raise ValueError("Landmarks tensor is required for fusion model.")
 
         # CNN stream
         x_img = frames.view(-1, self.in_planes, frames.shape[-2], frames.shape[-1])
@@ -97,46 +95,6 @@ class _GestureTransformerFusion(nn.Module):
         x = self.pool(x.transpose(1, 2)).squeeze(-1)
         x = self.classifier(x)
         return x
-
-    def _init_mediapipe(self):
-        if self._mp_hands is None:
-            try:
-                import mediapipe as mp
-            except ImportError as exc:
-                raise ImportError("mediapipe is required to extract landmarks on-the-fly.") from exc
-            self._mp_hands = mp.solutions.hands.Hands(static_image_mode=True,
-                                                      max_num_hands=1,
-                                                      min_detection_confidence=0.5)
-
-    def _extract_landmarks_from_frames(self, frames: torch.Tensor, n_frames: int) -> torch.Tensor:
-        """Run MediaPipe on raw frames to obtain landmarks when they are not precomputed."""
-        self._init_mediapipe()
-        b, _, h, w = frames.shape
-        frames_reshaped = frames.view(b, n_frames, self.in_planes, h, w).detach().cpu()
-        landmarks = torch.zeros((b, n_frames, 21, 3), dtype=torch.float32)
-
-        for bi in range(b):
-            for ti in range(n_frames):
-                img = frames_reshaped[bi, ti]
-                if self.in_planes >= 3:
-                    img_np = img[:3].permute(1, 2, 0).numpy()
-                else:
-                    img_np = img[0].unsqueeze(0).repeat(3, 1, 1).permute(1, 2, 0).numpy()
-
-                # Rescale normalized tensor to 0-255 uint8 and convert BGR->RGB for MediaPipe.
-                img_np = img_np - img_np.min()
-                max_val = img_np.max()
-                if max_val > 0:
-                    img_np = img_np / max_val
-                img_np = (img_np * 255).astype(np.uint8)[..., ::-1]
-
-                results = self._mp_hands.process(img_np)
-                if results.multi_hand_landmarks:
-                    hand = results.multi_hand_landmarks[0]
-                    coords = [(lm.x, lm.y, lm.z) for lm in hand.landmark]
-                    landmarks[bi, ti] = torch.tensor(coords, dtype=torch.float32)
-
-        return landmarks.view(b, n_frames, -1).to(frames.device)
 
 
 def GestureTransformerFusion(backbone: str = "resnet", in_planes: int = 3, n_classes: int = 25, **kwargs):
