@@ -1,7 +1,7 @@
-import cv2
+
 import numpy as np
 import os
-import mediapipe as mp
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -198,66 +198,12 @@ def extract_frames(video_path, output_folder, num_frames=40, method='window'):
     logger.info(f"Сохранено {len(saved_files)} кадров в '{output_folder}'.")
     return saved_files
 
-def process_mediapipe(img_set):
-    mp_drawing = mp.solutions.drawing_utils
-    mp_drawing_styles = mp.solutions.drawing_styles
-    mp_hands = mp.solutions.hands
-
-    # Инициализация модели MediaPipe Hands.
-    with mp_hands.Hands(
-        static_image_mode=False,
-        max_num_hands=1,
-        min_detection_confidence=0.5,
-        min_tracking_confidence=0.5) as hands:
-
-        annotated_img_set = []
-        annotated_cnt = 0
-        # Перебираем все изображения.
-        for img in img_set:
-
-            # Обрабатываем изображение с помощью MediaPipe.
-            results = hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-            
-            if results.multi_hand_landmarks:
-                for hand_landmarks in results.multi_hand_landmarks:
-                    mp_drawing.draw_landmarks(
-                        img,
-                        hand_landmarks,
-                        mp_hands.HAND_CONNECTIONS,
-                        mp_drawing_styles.get_default_hand_landmarks_style(),
-                        mp_drawing_styles.get_default_hand_connections_style()
-                    )
-                annotated_cnt += 1
-            annotated_img_set.append(img)
-    
-    logger.info(f"Размечены {annotated_cnt} из {len(img_set)} кадров.")
-    return annotated_img_set
 
 
-def read_images(dir_path, file_extensions):
-    img_names = [
-        img for img in os.listdir(dir_path)
-        if os.path.isfile(os.path.join(dir_path, img)) 
-        and img.lower().endswith(file_extensions)
-        ]
-    img_set = []
-    for img in img_names:
-        img_set.append(cv2.flip(cv2.imread(os.path.join(dir_path, img)), 1))
-    return img_set
 
 
-def save_images(img_set, out_dir_path, resize_flag=False):
-    for idx, img in enumerate(img_set):
-        output_filename = os.path.join(out_dir_path, f"frame_{idx:03d}.jpg")
-        if resize_flag:
-            cv2.imwrite(output_filename, cv2.flip(cv2.resize(img, (224, 224)), 1))
-        else:
-            cv2.imwrite(output_filename, cv2.flip(img, 1))
-    
-    logger.info(f"Сохранено {len(img_set)} кадров {out_dir_path}")
 
 
-def dataset_check(dir_items, full_list):
-    items_left = [item for item in full_list.tolist() if item not in set(dir_items)]
-    if items_left:
-        raise FileNotFoundError(f"Files from annotation that has not been found: {items_left}")
+
+
+
