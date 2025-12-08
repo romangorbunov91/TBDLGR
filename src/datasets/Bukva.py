@@ -93,7 +93,7 @@ class Bukva(Dataset):
     def _extract_landmarks_from_frames(self, frames):
         """Run MediaPipe Hands on list of BGR frames, return (T,21,3) array."""
         coords = np.zeros((len(frames), 21, 3), dtype=np.float32)
-        with mp.solutions.hands.Hands(static_image_mode=True,
+        with mp.solutions.hands.Hands(static_image_mode=False,
                                       max_num_hands=1,
                                       min_detection_confidence=0.5) as hands:
             for idx, img in enumerate(frames):
