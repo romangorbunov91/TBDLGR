@@ -5,6 +5,10 @@ from pathlib import Path
 from frame_functions import dataset_check, read_images, process_mediapipe
 
 import logging
+logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s - %(message)s"
+    )
 logger = logging.getLogger(__name__)
 
 # USER SETTINGS.
