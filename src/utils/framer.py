@@ -130,6 +130,7 @@ def save_images(img_set, dir_path, resize_flag=False):
 
 
 def dataset_check(dir_items, full_list):
+    print(dir_items)
     items_left = [item for item in full_list.tolist() if item not in set(dir_items)]
     if items_left:
         raise FileNotFoundError(f"Files from annotation that has not been found: {items_left}")
@@ -378,7 +379,7 @@ elif SOURCE_TYPE == 'video':
     logger.info(f"{len(items)} items found in {INPUT_DIR_PATH}.")
     
     # Check weather dir contains all items from annotation list.
-    dataset_check(items, annotations)
+    dataset_check([os.path.splitext(item)[0] for item in items], annotations)
     
     for item in items:  
         item_name, _ = os.path.splitext(item)
