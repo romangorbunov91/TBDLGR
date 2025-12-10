@@ -28,16 +28,18 @@ class MediaPipeBackbone(nn.Module):
 
         batch_landmarks = []
 
-        for i in range(x.shape[0]):  # Проходим по каждому примеру в батче
+        for i in range(x.shape[0]):  # Это Batch * Frames
             video_landmarks = []  # Список для хранения landmarks для каждого кадра
-            for j in range(x.shape[1]):  # Проходим по кадрам для одного примера (например, для одного жеста)
-                image_rgb = x[i, j].cpu().detach().numpy()  # Извлекаем кадр из последовательности
+            for j in range(x.shape[1]):  # Это кадры
+                image_rgb = x[i, j].cpu().detach().numpy()  # Извлекаем кадр
 
                 # Преобразуем изображение в формат RGB для MediaPipe
                 image_rgb = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2RGB)
 
                 # Масштабируем значения пикселей в диапазон [0, 255] и преобразуем в uint8
-                image_rgb = np.clip(image_rgb * 255, 0, 255).astype(np.uint8)
+                image_rgb = (image_rgb + 2.0) * 127.5
+                image_rgb = np.clip(image_rgb, 0, 255).astype(np.uint8)
+
 
                 # Применяем MediaPipe для извлечения landmarks
                 results = self.mp_hands.process(image_rgb)
