@@ -96,7 +96,7 @@ class GestureTest(object):
         # Selecting Dataset and DataLoader
         if self.dataset == "bukva":
             Dataset = Bukva
-            self.transforms = iaa.CenterCropToFixedSize(200, 200)
+            self.transforms = iaa.Noop()
         elif self.dataset == "briareo":
             Dataset = Briareo
             self.transforms = iaa.CenterCropToFixedSize(200, 200)
@@ -151,7 +151,7 @@ class GestureTest(object):
         plt.title(f"Confusion Matrix (TEST mean accuracy: {accuracy:.4f})")
 
         # Save as PDF
-        output_path = f".\checkpoints\Bukva\confusion_matrix\TEST_acc_{accuracy:.4f}.pdf"
+        output_path = f"./checkpoints/Bukva/confusion_matrix/TEST_acc_{accuracy:.4f}.pdf"
         plt.savefig(output_path, format='pdf', bbox_inches='tight')
         plt.close(fig)  # Free memory
 

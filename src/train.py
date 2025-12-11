@@ -163,7 +163,7 @@ class GestureTrainer(object):
                 iaa.CropToFixedSize(width=190, height=190),
                 iaa.Rotate((-15, 15))
             ])
-            self.val_transforms = iaa.CenterCropToFixedSize(200, 200)
+            self.val_transforms = iaa.Noop()
         elif self.dataset == "nvgestures":
             Dataset = NVGesture
             self.train_transforms = iaa.Sequential([
