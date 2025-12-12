@@ -230,8 +230,7 @@ class GestureTrainer(object):
         self.net.eval()
 
         with torch.no_grad():
-            # for i, data_tuple in enumerate(tqdm(self.val_loader, desc="Val", postfix=str(self.accuracy["val"].avg))):
-            for i, data_tuple in enumerate(tqdm(self.val_loader, desc="Val", postfix=""+str(np.random.randint(200)))):
+            for data_tuple in tqdm(self.val_loader, desc="Val", postfix=""+str(np.random.randint(200))):
                 """
                 input, gt
                 """
@@ -269,7 +268,7 @@ class GestureTrainer(object):
         all_labels = []  # To store all ground truth labels
         
         with torch.no_grad():
-            for _, data_tuple in enumerate(tqdm(self.test_loader, desc="Test", postfix=str(self.accuracy["test"].avg))):
+            for data_tuple in tqdm(self.test_loader, desc="Test", postfix=str(self.accuracy["test"].avg)):
                 """
                 input, gt
                 """
