@@ -29,7 +29,7 @@ N_FRAMES = 40
 # Resize images.
 # Prior transforms.
 READ_RESIZE_FLAG = True
-SIZE_INPUT = (640, 480)
+SIZE_INPUT = (360, 270)
 # After all transforms.
 SAVE_RESIZE_FLAG = True
 SIZE_OUTPUT = (224, 224)
@@ -130,7 +130,6 @@ def save_images(img_set, dir_path, resize_flag=False):
 
 
 def dataset_check(dir_items, full_list):
-    print(dir_items)
     items_left = [item for item in full_list.tolist() if item not in set(dir_items)]
     if items_left:
         raise FileNotFoundError(f"Files from annotation that has not been found: {items_left}")
