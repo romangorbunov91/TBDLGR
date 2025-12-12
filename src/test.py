@@ -130,7 +130,7 @@ class GestureTest(object):
                 predicted = torch.argmax(outputs, dim=1)
                 labels = gt.flatten()  # Ensure shape [B]
 
-                # Accumulate predictions and labels
+                # Accumulate predictions and labels.
                 all_preds.extend(predicted.cpu().tolist())
                 all_labels.extend(labels.cpu().tolist())
 

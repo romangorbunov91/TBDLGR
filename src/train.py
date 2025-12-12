@@ -24,6 +24,9 @@ from tqdm import tqdm
 from utils.average_meter import AverageMeter
 from tensorboardX import SummaryWriter
 
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+
 # Setting seeds
 def worker_init_fn(worker_id):
     np.random.seed(torch.initial_seed() % 2 ** 32)
@@ -239,11 +242,11 @@ class GestureTrainer(object):
                 loss = self.loss(output, gt.squeeze(dim=1))
 
                 predicted = torch.argmax(output.detach(), dim=1)
-                correct = gt.detach().squeeze(dim=1)
+                labels = gt.detach().squeeze(dim=1)
 
                 self.iters += 1
                 self.update_metrics("val", loss.item(), inputs.size(0),
-                                    float((predicted == correct).sum()) / len(correct))
+                                    float((predicted == labels).sum()) / len(labels))
 
         self.tbx_summary.add_scalar('val_loss', self.losses["val"].avg, self.epoch + 1)
         self.tbx_summary.add_scalar('val_accuracy', self.accuracy["val"].avg, self.epoch + 1)
@@ -262,27 +265,48 @@ class GestureTrainer(object):
     def __test(self):
         """Testing function."""
         self.net.eval()
-
+        all_preds = []   # To store all predictions
+        all_labels = []  # To store all ground truth labels
+        
         with torch.no_grad():
-            for i, data_tuple in enumerate(tqdm(self.test_loader, desc="Test", postfix=str(self.accuracy["test"].avg))):
+            for _, data_tuple in enumerate(tqdm(self.test_loader, desc="Test", postfix=str(self.accuracy["test"].avg))):
                 """
                 input, gt
                 """
-                inputs = data_tuple[0].to(self.device)
-                gt = data_tuple[1].to(self.device)
+                inputs, gt = data_tuple[0].to(self.device), data_tuple[1].to(self.device)
 
                 output = self.net(inputs)
                 loss = self.loss(output, gt.squeeze(dim=1))
 
                 predicted = torch.argmax(output.detach(), dim=1)
-                correct = gt.detach().squeeze(dim=1)
+                labels = gt.detach().squeeze(dim=1)
+
+                # Accumulate predictions and labels.
+                all_preds.extend(predicted.cpu().tolist())
+                all_labels.extend(labels.cpu().tolist())
 
                 self.iters += 1
                 self.update_metrics("test", loss.item(), inputs.size(0),
-                                    float((predicted == correct).sum()) / len(correct))
+                                    float((predicted == labels).sum()) / len(labels))
+        
         self.tbx_summary.add_scalar('test_loss', self.losses["test"].avg, self.epoch + 1)
         self.tbx_summary.add_scalar('test_accuracy', self.accuracy["test"].avg, self.epoch + 1)
         print("TEST accuracy: {:.4f}".format(self.accuracy["test"].avg))
+
+        # Compute confusion matrix
+        cm = confusion_matrix(all_labels, all_preds)
+
+        # Plot and save to PDF
+        fig, ax = plt.subplots(figsize=(16, 12))  # Adjust size if needed
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=range(len(cm)))
+        disp.plot(cmap=plt.cm.Blues, ax=ax)
+        plt.title(f"Confusion Matrix (Epoch {self.epoch + 1} TEST mean accuracy: {self.accuracy["test"].avg:.4f})")
+
+        # Save as PDF
+        output_path = f"./checkpoints/Bukva/confusion_matrix/TEST_epoch_{self.epoch + 1}_acc_{self.accuracy["test"].avg:.4f}.pdf"
+        plt.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)  # Free memory
+
         self.losses["test"].reset()
         self.accuracy["test"].reset()
 
