@@ -19,6 +19,9 @@
       "save_iters": 30,
       "tb_path": "train_log"
     },
+    "scores": {
+      "save_dir": "./scores/Bukva/"
+    },
     "solver": {
       "type": "AdamW",
       "workers": 4,

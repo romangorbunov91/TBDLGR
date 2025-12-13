@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import numpy as np
 import torch
 
@@ -151,10 +154,13 @@ class GestureTest(object):
         plt.title(f"Confusion Matrix (TEST mean accuracy: {accuracy:.4f})")
 
         # Save as PDF
-        output_path = f"./checkpoints/Bukva/confusion_matrix/TEST_acc_{accuracy:.4f}.pdf"
+        # Create destination folder.
+        dir_path = Path(self.configer.get('scores', 'save_dir'))
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+        output_path = dir_path/ f"TEST_acc_{accuracy:.4f}.pdf"
         plt.savefig(output_path, format='pdf', bbox_inches='tight')
         plt.close(fig)  # Free memory
-
         print(f"Confusion matrix saved to {output_path}")
  
     def test(self):

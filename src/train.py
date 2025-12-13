@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import numpy as np
@@ -87,9 +88,9 @@ class GestureTrainer(object):
         self.loss = None
 
         # Tensorboard and Metrics
-        self.tbx_summary = SummaryWriter(str(Path(configer.get('checkpoints', 'tb_path'))  #: Summary Writer plot
-                                             / configer.get("dataset")                     #: data with TensorboardX
-                                             / configer.get('checkpoints', 'save_name')))
+        self.tbx_summary = SummaryWriter(str(Path(self.configer.get('checkpoints', 'tb_path'))  #: Summary Writer plot
+                                             / self.configer.get("dataset")                     #: data with TensorboardX
+                                             / self.configer.get('checkpoints', 'save_name')))
         self.tbx_summary.add_text('parameters', str(self.configer).replace("\n", "\n\n"))
         self.save_iters = self.configer.get('checkpoints', 'save_iters')    #: int: Saving ratio
 
@@ -302,9 +303,14 @@ class GestureTrainer(object):
         plt.title(f"Confusion Matrix (Epoch {self.epoch + 1} TEST mean accuracy: {self.accuracy["test"].avg:.4f})")
 
         # Save as PDF
-        output_path = f"./checkpoints/Bukva/confusion_matrix/TEST_epoch_{self.epoch + 1}_acc_{self.accuracy["test"].avg:.4f}.pdf"
+        # Create destination folder.
+        dir_path = Path(self.configer.get('scores', 'save_dir'))
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+        output_path = dir_path/ f"TEST_epoch_{self.epoch + 1}_acc_{self.accuracy["test"].avg:.4f}.pdf"
         plt.savefig(output_path, format='pdf', bbox_inches='tight')
         plt.close(fig)  # Free memory
+        print(f"Confusion matrix saved to {output_path}")
 
         self.losses["test"].reset()
         self.accuracy["test"].reset()
