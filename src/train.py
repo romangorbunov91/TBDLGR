@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import numpy as np
@@ -8,6 +9,7 @@ from torch.utils.data import DataLoader
 import imgaug.augmenters as iaa
 
 # Import Datasets
+from datasets.Bukva import Bukva
 from datasets.Briareo import Briareo
 from datasets.NVGestures import NVGesture
 from models.model_utilizer import ModuleUtilizer
@@ -22,6 +24,9 @@ from torch.optim.lr_scheduler import MultiStepLR
 from tqdm import tqdm
 from utils.average_meter import AverageMeter
 from tensorboardX import SummaryWriter
+
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 
 # Setting seeds
 def worker_init_fn(worker_id):
@@ -83,9 +88,9 @@ class GestureTrainer(object):
         self.loss = None
 
         # Tensorboard and Metrics
-        self.tbx_summary = SummaryWriter(str(Path(configer.get('checkpoints', 'tb_path'))  #: Summary Writer plot
-                                             / configer.get("dataset")                     #: data with TensorboardX
-                                             / configer.get('checkpoints', 'save_name')))
+        self.tbx_summary = SummaryWriter(str(Path(self.configer.get('checkpoints', 'tb_path'))  #: Summary Writer plot
+                                             / self.configer.get("dataset")                     #: data with TensorboardX
+                                             / self.configer.get('checkpoints', 'save_name')))
         self.tbx_summary.add_text('parameters', str(self.configer).replace("\n", "\n\n"))
         self.save_iters = self.configer.get('checkpoints', 'save_iters')    #: int: Saving ratio
 
@@ -155,7 +160,14 @@ class GestureTrainer(object):
                 iaa.Rotate((-15, 15))
             ])
             self.val_transforms = iaa.CenterCropToFixedSize(200, 200)
-
+        elif self.dataset == "bukva":
+            Dataset = Bukva
+            self.train_transforms = iaa.Sequential([
+                iaa.Resize((0.85, 1.15)),
+                iaa.CropToFixedSize(width=190, height=190),
+                iaa.Rotate((-15, 15))
+            ])
+            self.val_transforms = iaa.Noop()
         elif self.dataset == "nvgestures":
             Dataset = NVGesture
             self.train_transforms = iaa.Sequential([
@@ -214,14 +226,12 @@ class GestureTrainer(object):
             self.update_metrics("train", loss.item(), inputs.size(0),
                                 float((predicted==correct).sum()) / len(correct))
 
-
     def __val(self):
         """Validation function."""
         self.net.eval()
 
         with torch.no_grad():
-            # for i, data_tuple in enumerate(tqdm(self.val_loader, desc="Val", postfix=str(self.accuracy["val"].avg))):
-            for i, data_tuple in enumerate(tqdm(self.val_loader, desc="Val", postfix=""+str(np.random.randint(200)))):
+            for data_tuple in tqdm(self.val_loader, desc="Val", postfix=""+str(np.random.randint(200))):
                 """
                 input, gt
                 """
@@ -232,14 +242,15 @@ class GestureTrainer(object):
                 loss = self.loss(output, gt.squeeze(dim=1))
 
                 predicted = torch.argmax(output.detach(), dim=1)
-                correct = gt.detach().squeeze(dim=1)
+                labels = gt.detach().squeeze(dim=1)
 
                 self.iters += 1
                 self.update_metrics("val", loss.item(), inputs.size(0),
-                                    float((predicted == correct).sum()) / len(correct))
+                                    float((predicted == labels).sum()) / len(labels))
 
         self.tbx_summary.add_scalar('val_loss', self.losses["val"].avg, self.epoch + 1)
         self.tbx_summary.add_scalar('val_accuracy', self.accuracy["val"].avg, self.epoch + 1)
+        print("VAL  accuracy: {:.4f}".format(self.accuracy["val"].avg))
         accuracy = self.accuracy["val"].avg
         self.accuracy["val"].reset()
         self.losses["val"].reset()
@@ -254,26 +265,53 @@ class GestureTrainer(object):
     def __test(self):
         """Testing function."""
         self.net.eval()
-
+        all_preds = []   # To store all predictions
+        all_labels = []  # To store all ground truth labels
+        
         with torch.no_grad():
-            for i, data_tuple in enumerate(tqdm(self.test_loader, desc="Test", postfix=str(self.accuracy["test"].avg))):
+            for data_tuple in tqdm(self.test_loader, desc="Test", postfix=str(self.accuracy["test"].avg)):
                 """
                 input, gt
                 """
-                inputs = data_tuple[0].to(self.device)
-                gt = data_tuple[1].to(self.device)
+                inputs, gt = data_tuple[0].to(self.device), data_tuple[1].to(self.device)
 
                 output = self.net(inputs)
                 loss = self.loss(output, gt.squeeze(dim=1))
 
                 predicted = torch.argmax(output.detach(), dim=1)
-                correct = gt.detach().squeeze(dim=1)
+                labels = gt.detach().squeeze(dim=1)
+
+                # Accumulate predictions and labels.
+                all_preds.extend(predicted.cpu().tolist())
+                all_labels.extend(labels.cpu().tolist())
 
                 self.iters += 1
                 self.update_metrics("test", loss.item(), inputs.size(0),
-                                    float((predicted == correct).sum()) / len(correct))
+                                    float((predicted == labels).sum()) / len(labels))
+        
         self.tbx_summary.add_scalar('test_loss', self.losses["test"].avg, self.epoch + 1)
         self.tbx_summary.add_scalar('test_accuracy', self.accuracy["test"].avg, self.epoch + 1)
+        print("TEST accuracy: {:.4f}".format(self.accuracy["test"].avg))
+
+        # Compute confusion matrix
+        cm = confusion_matrix(all_labels, all_preds)
+
+        # Plot and save to PDF
+        fig, ax = plt.subplots(figsize=(16, 12))  # Adjust size if needed
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=range(len(cm)))
+        disp.plot(cmap=plt.cm.Blues, ax=ax)
+        plt.title(f"Confusion Matrix (Epoch {self.epoch + 1} TEST mean accuracy: {self.accuracy["test"].avg:.4f})")
+
+        # Save as PDF
+        # Create destination folder.
+        dir_path = Path(self.configer.get('scores', 'save_dir'))
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+        output_path = dir_path/ f"TEST_epoch_{self.epoch + 1}_acc_{self.accuracy["test"].avg:.4f}.pdf"
+        plt.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)  # Free memory
+        print(f"Confusion matrix saved to {output_path}")
+
         self.losses["test"].reset()
         self.accuracy["test"].reset()
 

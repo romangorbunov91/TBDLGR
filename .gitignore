@@ -1,17 +1,23 @@
 /*
 
 !.gitignore
+
 !/img/
+
 !/src/
+/src/__pycache__
 /src/datasets/__pycache__
 /src/datasets/utils/__pycache__
 /src/models/__pycache__
 /src/models/backbones/__pycache__
 /src/utils/__pycache__
 
+!/scratch/
+
 !/.venv/Lib/site-packages/imgaug/imgaug.py
 
 !README.md
 !LICENSE
 !notebook.ipynb
+!create_val.ipynb
 !requirements.txt

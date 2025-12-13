@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import numpy as np
 import torch
 
@@ -5,6 +8,7 @@ from torch.utils.data import DataLoader
 import imgaug.augmenters as iaa
 
 # Import Datasets
+from datasets.Bukva import Bukva
 from datasets.Briareo import Briareo
 from datasets.NVGestures import NVGesture
 from models.model_utilizer import ModuleUtilizer
@@ -15,6 +19,9 @@ from models.temporal import GestureTransoformer
 # Import Utils
 from tqdm import tqdm
 from utils.average_meter import AverageMeter
+
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 
 # Setting seeds
 def worker_init_fn(worker_id):
@@ -57,7 +64,7 @@ class GestureTest(object):
         self.transforms = None
 
         # Other useful data
-        self.backbone = self.configer.get("network", "backbone")     #: str: Backbone type
+        self.backbone = self.configer.get("network", "backbone")    #: str: Backbone type
         self.in_planes = None                                       #: int: Input channels
         self.clip_length = self.configer.get("data", "n_frames")    #: int: Number of frames per sequence
         self.n_classes = self.configer.get("data", "n_classes")     #: int: Total number of classes for dataset
@@ -90,7 +97,10 @@ class GestureTest(object):
         self.net, _, _, _ = self.model_utility.load_net(self.net)
 
         # Selecting Dataset and DataLoader
-        if self.dataset == "briareo":
+        if self.dataset == "bukva":
+            Dataset = Bukva
+            self.transforms = iaa.Noop()
+        elif self.dataset == "briareo":
             Dataset = Briareo
             self.transforms = iaa.CenterCropToFixedSize(200, 200)
         elif self.dataset == "nvgestures":
@@ -110,32 +120,51 @@ class GestureTest(object):
     def __test(self):
         """Testing function."""
         self.net.eval()
-        c = 0
-        tot = 0
+        correct = 0
+        total = 0
+        all_preds = []   # To store all predictions
+        all_labels = []  # To store all ground truth labels
+
         with torch.no_grad():
-            for i, data_tuple in enumerate(tqdm(self.data_loader, desc="Test")):
-                """
-                input, gt
-                """
-                inputs = data_tuple[0].to(self.device)
-                gt = data_tuple[1].to(self.device)
+            for data_tuple in tqdm(self.data_loader, desc="Test"):
+                inputs, gt = data_tuple[0].to(self.device), data_tuple[1].to(self.device)
 
-                output = self.net(inputs)
+                outputs = self.net(inputs)
+                predicted = torch.argmax(outputs, dim=1)
+                labels = gt.flatten()  # Ensure shape [B]
 
-                predicted = torch.argmax(output.detach(), dim=1)
-                correct = gt.detach().squeeze(dim=1)
+                # Accumulate predictions and labels.
+                all_preds.extend(predicted.cpu().tolist())
+                all_labels.extend(labels.cpu().tolist())
 
-                if predicted == correct:
-                    c += 1
-                tot += 1
+                # Accuracy tracking
+                correct += (predicted == labels).sum().item()
+                total += labels.size(0)
 
-        accuracy = c / tot
+        accuracy = correct / total
+        print(f"Accuracy: {accuracy:.4f}")
 
-        print("Accuracy: {}".format(accuracy))
+        # Compute confusion matrix
+        cm = confusion_matrix(all_labels, all_preds)
 
+        # Plot and save to PDF
+        fig, ax = plt.subplots(figsize=(16, 12))  # Adjust size if needed
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=range(len(cm)))
+        disp.plot(cmap=plt.cm.Blues, ax=ax)
+        plt.title(f"Confusion Matrix (TEST mean accuracy: {accuracy:.4f})")
+
+        # Save as PDF
+        # Create destination folder.
+        dir_path = Path(self.configer.get('scores', 'save_dir'))
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+        output_path = dir_path/ f"TEST_acc_{accuracy:.4f}.pdf"
+        plt.savefig(output_path, format='pdf', bbox_inches='tight')
+        plt.close(fig)  # Free memory
+        print(f"Confusion matrix saved to {output_path}")
+ 
     def test(self):
         self.__test()
-
 
     def update_metrics(self, split: str, loss, bs, accuracy=None):
         self.losses[split].update(loss, bs)
