@@ -1,40 +1,82 @@
 # A Transformer-Based Dactile Language Gesture Recognition
 
-This is the official PyTorch implementation of the publication:
+Решена задача перевода (распознавания, классификации) изолированных жестов русского дактильного языка. Область применения - тренажеры алфавита языка жестов.
+
+<img src='img/gesture_set.png' style='width:100%; height:auto;'>
+
+## Датасет [Bukva&copy;](https://github.com/ai-forever/bukva?tab=readme-ov-file#bukva-russian-sign-language-alphabet-dataset)
+
+<figure>
+  <img src='img/bukva_pipeline.png'
+      style='width:100%; height:auto;'>
+  <figcaption>Последовательность создания датасета Bukva.</figcaption>
+</figure>
+
+Запись видеороликов осуществлялась разными людьми по инструкции разработчиков датасета.
+
+
+<figure>
+  <img src='img/bukva.gif'
+      style='width:100%; height:auto;'>
+  <figcaption>Эталонная демонстрация жестов (инструкция).</figcaption>
+</figure>
+
+Видеоролики фильтрованы разработчиками датасета по следующим правилам:
+- В кадре должен находиться только один человек.
+- Не менее 720 пикселей по минимальной стороне.
+- Не менее 15 кадров в секунду.
+- Отсутствие дубликатов видео.
+- Рука, выполняющая жест, должна быть полностью видна в кадре.
+
+В результате получились ~4000 HD видеозаписей демонстрации жеста разными людьми (>100 видеозаписей на каждый жест).
+
+<figure>
+  <img src='img/bukva_gestures.png'
+      style='width:100%; height:auto;'>
+  <figcaption>Фрагменты итогового датасета.</figcaption>
+</figure>
+
+На последнем этапе размечены интервалы. Разметка осуществлялась тремя разными пользователями с последующей агрегацией интервалов.
+
+<figure>
+  <img src='img/trimmer_marks.png'
+      style='width:100%; height:auto;'>
+  <figcaption>Разметка интервалов видеороликов.</figcaption>
+</figure>
+
+Подробнее:
+- [Bukva: алфавит русского жестового языка](https://habr.com/ru/companies/sberdevices/articles/850858/)
+- [Bukva: Russian Sign Language Alphabet](https://arxiv.org/abs/2410.08675)
+
+## Архитектура модели
+
+В основу проекта положена архитектура, описанная в статье
 
 *A. D’Eusanio, A. Simoni, S. Pini, G. Borghi, R. Vezzani, R. Cucchiara*  
 **A Transformer-Based Network for Dynamic Hand Gesture Recognition**  
-*In International Conference on 3D Vision (3DV) 2020*
+*In International Conference on 3D Vision (3DV) 2020.*
 
 **[[Paper](https://iris.unimore.it/retrieve/handle/11380/1212263/282584/3DV_2020.pdf)]  [[Project Page](https://aimagelab.ing.unimore.it/imagelab/researchActivity.asp?idActivity=32)]**
 
-Transformer-based neural networks represent a successful self-attention mechanism that achieves outstanding results in 
-different topics, such as language understanding and sequence modeling. 
-The application of such models to different types of data, like the visual one, is necessary to push the boundaries of 
-common convolutinal and recurrent neural networks.  
-Therefore, in this work we propose a transformer-based architecture for the dynamic hand gesture recognition task, 
-focusing on the automotive environment.
-Moreover, we propose the combined use of depth maps and surface normals as unique sources to successfully solve the 
-task, even in low-light conditions.
+В статье предложена архитектура для задачи распознавания динамических жестов в системах автоматики. В том числе со сбором информации одновременно с разных типов датчиков.
 
 <p align="center" width="100%">
   <img src="./img/model.png" width="90%" />
 </p>
 <p align="center" width="100%">
-  <img src="./img/briareo2.gif" width="70%" />
+  <img src="./img/briareo.gif" width="70%" />
 </p>
 
-The two datasets we used are NVGestures and Briareo. Both of them contain data from multiple sensors: RGB, IR, and 
-depth, allowing the study of multimodal fusion techniques.
 
-In this work, we focused on the sole use of the depth sensor, which provides light-invariant depth maps that can be 
-further processed to obtain an estimation of the surface normals.  
-Experimental results show that the use of such a simple processing step leads to a significant gain in accuracy.
+## Подготовка датасета
 
-<p align="center" width="100%">
-  <img src="./img/example_2.png" width="50%" />
-</p>
 
+## Обучение
+
+
+Веса в каталоге
+
+Инструкция по интеграции весов (правки в )
 
 ## Getting Started
 These instructions will give you a copy of the project up and running on your local machine for development and testing 
@@ -64,18 +106,16 @@ NP_UINT_TYPES = {np.uint8, np.uint16, np.uint32, np.uint64}
 ```
 
 ## Download datasets
-The employed datasets are publicy available: 
-- **[NVGestures](https://research.nvidia.com/publication/online-detection-and-classification-dynamic-hand-gestures-recurrent-3d-convolutional "NVIDIA Dynamic Hand Gesture Dataset")**
-- **[Briareo](https://drive.google.com/drive/folders/1OqVd9QheO0lYgLAxJ4AQvDO3nkfFNKNM "Briareo Dataset")**
 
-Once downloaded, unzip anywhere in your drive.
+- **[Bukva-video Full Official](https://rndml-team-cv.obs.ru-moscow-1.hc.sbercloud.ru/datasets/bukva/bukva.zip "Bukva: Russian Sign Language Alphabet Dataset")**
+- **[Bukva-video Trimmed only](https://drive.google.com/drive/folders/1rXMtY4ja6oxHKdgiV-5taWaEJc1R3kjN?usp=sharing "G-Drive copy")**
 
 ## Pretrained model
-Pytorch pretrained models are available at this [link](https://drive.google.com/drive/folders/1VXRmAVNP6dgomkovNu2uaFqwwbLs_GE-?usp=sharing "Pretrained weights").
+Pytorch pretrained models are available at this [link](?? "Pretrained weights").
 
 ## Setup configuration
-For this project we used a json file, located in the hyperparameters folder, such as:  
-`hyperparameters/Briareo/[train.json](https://aimagelab.ing.unimore.it/imagelab/page.asp?IdPage=31 "Briareo")`
+For this project we used a json file [train.json](src\hyperparameters\Bukva\train.json "hyperparameters"), located in the `hyperparameters` folder.
+
 
 In there, you can set several parameters, like:
 
@@ -85,11 +125,9 @@ In there, you can set several parameters, like:
 - **Data-Nframe**, length of the input sequence, default: 40 frame.
 - **Data-path**, path where you downloaded and unzipped the dataset.
 
-For every other information check the file.
-
 ## Usage TRAIN
 ```
-python src/main.py --hypes src/hyperparameters/Briareo/train.json 
+python src/main.py --hypes src/hyperparameters/Bukva/train.json 
 ```
 ## Usage from saved weights (TEST or continue TRAIN)
 ```
@@ -97,7 +135,7 @@ python src/main.py --hypes src/hyperparameters/Briareo/train.json --resume check
 python src/main.py --hypes src/hyperparameters/Bukva/train.json --resume checkpoints/Bukva/best_train_bukva.pth
 ```
 
-## Authors
+## Авторы
 
 * [Роман Горбунов](https://github.com/romangorbunov91)
 * [Станислава Иваненко](https://github.com/smthCreate)
@@ -111,12 +149,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ```
 pip freeze > requirements.txt
-```
-
-```
-pip install git+https://github.com/aleju/imgaug.git@0101108d4fed06bc5056c4a03e2bcb0216dac326
-```
-
-```
-python src/utils/media_pipe.py
 ```
