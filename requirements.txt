@@ -69,9 +69,14 @@ tensorboardX==2.6.4
 threadpoolctl==3.6.0
 tifffile==2025.10.16
 <<<<<<< HEAD
+<<<<<<< HEAD
 torch-2.6.0+cu126-cp313-cp313-win_amd64.whl
 torchvision-0.24.1+cu126-cp313-cp313-win_amd64.whl
 torchaudio-2.6.0+cu126-cp313-cp313-win_amd64.whl
+=======
+torch @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torch-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=b10c39c83e5d1afd639b5c9f5683b351e97e41390a93f59c59187004a9949924
+torchaudio @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torchaudio-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=144b286d2f6195ba8d75ed1a568bddd718d032d54d1bf94940d47730c6321a0b
+>>>>>>> develop-roman
 =======
 torch @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torch-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=b10c39c83e5d1afd639b5c9f5683b351e97e41390a93f59c59187004a9949924
 torchaudio @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torchaudio-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=144b286d2f6195ba8d75ed1a568bddd718d032d54d1bf94940d47730c6321a0b
