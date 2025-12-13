@@ -143,9 +143,6 @@ python src/main.py --hypes src/hyperparameters/Bukva/train.json --resume checkpo
 * [Анжелина Абдулаева](https://github.com/anzhelina0)
 * [Кирилл Зайцев]()
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ```
 pip freeze > requirements.txt
