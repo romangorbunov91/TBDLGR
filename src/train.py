@@ -8,19 +8,16 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 import imgaug.augmenters as iaa
 
-# Import Datasets
+# Import Datasets.
 from datasets.Bukva import Bukva
-from datasets.Briareo import Briareo
-from datasets.NVGestures import NVGesture
 from models.model_utilizer import ModuleUtilizer
 
-# Import Model
+# Import Model.
 from models.temporal import GestureTransoformer
 from torch.optim.lr_scheduler import MultiStepLR
 
-# Import loss
 
-# Import Utils
+# Import Utils.
 from tqdm import tqdm
 from utils.average_meter import AverageMeter
 from tensorboardX import SummaryWriter
@@ -28,7 +25,7 @@ from tensorboardX import SummaryWriter
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 
-# Setting seeds
+# Setting seeds.
 def worker_init_fn(worker_id):
     np.random.seed(torch.initial_seed() % 2 ** 32)
 
@@ -152,15 +149,7 @@ class GestureTrainer(object):
             self.optimizer.load_state_dict(optim_dict)
 
         # Selecting Dataset and DataLoader
-        if self.dataset == "briareo":
-            Dataset = Briareo
-            self.train_transforms = iaa.Sequential([
-                iaa.Resize((0.85, 1.15)),
-                iaa.CropToFixedSize(width=190, height=190),
-                iaa.Rotate((-15, 15))
-            ])
-            self.val_transforms = iaa.CenterCropToFixedSize(200, 200)
-        elif self.dataset == "bukva":
+        if self.dataset == "bukva":
             Dataset = Bukva
             self.train_transforms = iaa.Sequential([
                 iaa.Resize((0.85, 1.15)),
@@ -168,14 +157,6 @@ class GestureTrainer(object):
                 iaa.Rotate((-15, 15))
             ])
             self.val_transforms = iaa.Noop()
-        elif self.dataset == "nvgestures":
-            Dataset = NVGesture
-            self.train_transforms = iaa.Sequential([
-                iaa.Resize((0.8, 1.2)),
-                iaa.CropToFixedSize(width=256, height=192),
-                iaa.Rotate((-15, 15))
-            ])
-            self.val_transforms = iaa.CenterCropToFixedSize(256, 192)
         else:
             raise NotImplementedError(f"Dataset not supported: {self.configer.get('dataset')}")
 

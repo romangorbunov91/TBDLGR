@@ -9,8 +9,6 @@ import imgaug.augmenters as iaa
 
 # Import Datasets
 from datasets.Bukva import Bukva
-from datasets.Briareo import Briareo
-from datasets.NVGestures import NVGesture
 from models.model_utilizer import ModuleUtilizer
 
 # Import Model
@@ -100,12 +98,6 @@ class GestureTest(object):
         if self.dataset == "bukva":
             Dataset = Bukva
             self.transforms = iaa.Noop()
-        elif self.dataset == "briareo":
-            Dataset = Briareo
-            self.transforms = iaa.CenterCropToFixedSize(200, 200)
-        elif self.dataset == "nvgestures":
-            Dataset = NVGesture
-            self.transforms = iaa.CenterCropToFixedSize(256, 192)
         else:
             raise NotImplementedError(f"Dataset not supported: {self.configer.get('dataset')}")
 

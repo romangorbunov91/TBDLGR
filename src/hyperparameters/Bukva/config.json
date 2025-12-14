@@ -1,23 +1,26 @@
 {
     "name": "Gesture Recognition",
-    "dataset": "NVGestures",
-    "epochs": 100,
+    "dataset": "Bukva",
+    "epochs": 25,
     "phase": "train",
     "data": {
       "optical_flow": false,
-      "type": "depth",
-      "n_classes": 25,
+      "type": "rgb",
+      "n_classes": 34,
       "n_frames": 40,
-      "data_path": "path/to/NVGestures",
+      "data_path": "./././datasets/Bukva",
       "result_dir": "./result",
       "batch_size": 8
     },
     "checkpoints": {
       "save_policy": "best",
-      "save_name": "train_nv",
+      "save_name": "train_bukva",
       "save_dir": "./checkpoints/",
       "save_iters": 30,
       "tb_path": "train_log"
+    },
+    "scores": {
+      "save_dir": "./scores/Bukva/"
     },
     "solver": {
       "type": "AdamW",
