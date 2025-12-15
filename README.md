@@ -15,7 +15,7 @@
 **[[Paper](https://iris.unimore.it/retrieve/handle/11380/1212263/282584/3DV_2020.pdf)]  [[Project Page](https://aimagelab.ing.unimore.it/imagelab/researchActivity.asp?idActivity=32)]**
 
 <p align="center" width="100%">
-  <img src="./img/output.png"
+  <img src="./img/model.png"
   style="background-color: white; padding: 0;
   width="100%" />
 </p>
