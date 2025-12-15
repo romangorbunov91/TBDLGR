@@ -49,8 +49,8 @@ class GestureTrainer(object):
     def __init__(self, configer):
         self.configer = configer
 
-        self.data_path = configer.get("data", "data_path")      #: str: Path to data directory
-
+        self.data_path = Path(self.configer.get("data", "data_path")) / self.configer.get("dataset")
+        
         # Losses
         self.losses = {
             'train': AverageMeter(),                      #: Train loss avg meter
@@ -65,12 +65,12 @@ class GestureTrainer(object):
             'test': AverageMeter()                        #: Test accuracy avg meter
         }
 
-        # DataLoaders
+        # DataLoaders.
         self.train_loader = None
         self.val_loader = None
         self.test_loader = None
 
-        # Module load and save utility
+        # Module load and save utility.
         self.device = self.configer.get("device")
         self.model_utility = ModuleUtilizer(self.configer)      #: Model utility for load, save and update optimizer
         self.net = None
@@ -96,22 +96,13 @@ class GestureTrainer(object):
         self.in_planes = None                                       #: int: Input channels
         self.clip_length = self.configer.get("data", "n_frames")    #: int: Number of frames per sequence
         self.n_classes = self.configer.get("data", "n_classes")     #: int: Total number of classes for dataset
-        self.data_type = self.configer.get("data", "type")          #: str: Type of data (rgb, depth, ir, leapmotion)
         self.dataset = self.configer.get("dataset").lower()         #: str: Type of dataset
-        self.optical_flow = self.configer.get("data", "optical_flow")
-        if self.optical_flow is None:
-            self.optical_flow = True
         self.scheduler = None
 
     def init_model(self):
         """Initialize model and other data for procedure"""
-
-        if self.optical_flow is True:
-            self.in_planes = 2
-        elif self.data_type in ["depth", "ir"]:
-            self.in_planes = 1
-        else:
-            self.in_planes = 3
+        
+        self.in_planes = 3
 
         self.loss = nn.CrossEntropyLoss().to(self.device)
 
@@ -162,23 +153,50 @@ class GestureTrainer(object):
 
         # Setting Dataloaders
         self.train_loader = DataLoader(
-            Dataset(self.configer, self.data_path, split="train", data_type=self.data_type,
-                    transforms=self.train_transforms, n_frames=self.clip_length, optical_flow=self.optical_flow),
-            batch_size=self.configer.get('data', 'batch_size'), shuffle=True, drop_last=True,
-            num_workers=self.configer.get('solver', 'workers'), pin_memory=True, worker_init_fn=worker_init_fn)
+            Dataset(
+                self.configer,
+                self.data_path,
+                split="train",
+                transforms=self.train_transforms,
+                n_frames=self.clip_length
+            ),
+            batch_size=self.configer.get('data', 'batch_size'),
+            shuffle=True,
+            drop_last=True,
+            num_workers=self.configer.get('data', 'workers'),
+            pin_memory=True,
+            worker_init_fn=worker_init_fn
+            )
         self.val_loader = DataLoader(
-            Dataset(self.configer, self.data_path, split="val", data_type=self.data_type,
-                    transforms=self.val_transforms, n_frames=self.clip_length, optical_flow=self.optical_flow),
-            batch_size=self.configer.get('data', 'batch_size'), shuffle=False, drop_last=True,
-            num_workers=self.configer.get('solver', 'workers'), pin_memory=True, worker_init_fn=worker_init_fn)
-        if self.dataset == "nvgestures":
-            self.test_loader = None
-        else:
-            self.test_loader = DataLoader(
-                Dataset(self.configer, self.data_path, split="test", data_type=self.data_type,
-                        transforms=self.val_transforms, n_frames=self.clip_length, optical_flow=self.optical_flow),
-                batch_size=1, shuffle=False, drop_last=True,
-                num_workers=self.configer.get('solver', 'workers'), pin_memory=True, worker_init_fn=worker_init_fn)
+            Dataset(
+                self.configer,
+                self.data_path,
+                split="val",
+                transforms=self.val_transforms,
+                n_frames=self.clip_length
+            ),
+            batch_size=self.configer.get('data', 'batch_size'),
+            shuffle=False,
+            drop_last=True,
+            num_workers=self.configer.get('data', 'workers'),
+            pin_memory=True,
+            worker_init_fn=worker_init_fn
+            )
+        self.test_loader = DataLoader(
+            Dataset(
+                self.configer,
+                self.data_path,
+                split="test",
+                transforms=self.val_transforms,
+                n_frames=self.clip_length
+            ),
+            batch_size=1,
+            shuffle=False,
+            drop_last=True,
+            num_workers=self.configer.get('data', 'workers'),
+            pin_memory=True,
+            worker_init_fn=worker_init_fn
+            )
 
     def __train(self):
         """Train function for every epoch."""
@@ -285,7 +303,7 @@ class GestureTrainer(object):
 
         # Save as PDF
         # Create destination folder.
-        dir_path = Path(self.configer.get('scores', 'save_dir'))
+        dir_path = Path(self.configer.get('scores', 'save_dir')) / self.configer.get("dataset")
         if not os.path.exists(dir_path):
             os.makedirs(dir_path, exist_ok=True)
         output_path = dir_path/ f"TEST_epoch_{self.epoch + 1}_acc_{self.accuracy["test"].avg:.4f}.pdf"

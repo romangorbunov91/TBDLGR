@@ -145,9 +145,17 @@ class ModuleUtilizer(object):
         if not os.path.exists(checkpoints_dir):
             os.makedirs(checkpoints_dir)
         if all:
-            latest_name = '{}_{}.pth'.format(self.configer.get('checkpoints', 'save_name'), epoch)
+            latest_name = '{}_{}_{}.pth'.format(
+                self.configer.get('checkpoints', 'save_name'),
+                self.configer.get("dataset"), 
+                epoch
+                ).lower()
         else:
-            latest_name = 'best_{}.pth'.format(self.configer.get('checkpoints', 'save_name'))
+            latest_name = '{}_{}_{}.pth'.format(
+                self.configer.get('checkpoints', 'save_policy'),
+                self.configer.get('checkpoints', 'save_name'),
+                self.configer.get("dataset")
+                ).lower()
         torch.save(state, os.path.join(checkpoints_dir, latest_name))
 
     def save_all(self, accuracy, net, optimizer, iters, epoch):

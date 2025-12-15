@@ -4,27 +4,24 @@
     "epochs": 100,
     "phase": "train",
     "data": {
-      "optical_flow": false,
-      "type": "rgb",
       "n_classes": 34,
       "n_frames": 40,
-      "data_path": "./././datasets/Bukva",
-      "result_dir": "./result",
+      "data_path": "./datasets/",
+      "workers": 4,
       "batch_size": 8
     },
     "checkpoints": {
       "save_policy": "best",
-      "save_name": "train_bukva",
+      "save_name": "train",
       "save_dir": "./checkpoints/",
       "save_iters": 30,
       "tb_path": "train_log"
     },
     "scores": {
-      "save_dir": "./scores/Bukva/"
+      "save_dir": "./scores/"
     },
     "solver": {
       "type": "AdamW",
-      "workers": 4,
       "weight_decay": 0.0001,
       "base_lr": 0.0001,
       "decay_steps": [50, 75]

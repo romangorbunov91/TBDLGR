@@ -11,7 +11,7 @@ from datasets.utils.normalize import normalize
 
 class Bukva(Dataset):
     """Bukva Dataset class"""
-    def __init__(self, configer, path, split="train", data_type=None, transforms=None, n_frames=None, optical_flow=False):
+    def __init__(self, configer, path, split="train", transforms=None, n_frames=None):
         """Constructor method for Bukva Dataset class
 
         Args:
@@ -23,7 +23,8 @@ class Bukva(Dataset):
         """
         super().__init__()
 
-        self.dataset_path = Path(path)
+        self.dataset_path = path
+        #print(self.dataset_path)
         self.split = split
         self.transforms = transforms
 
