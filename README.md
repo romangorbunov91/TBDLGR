@@ -15,7 +15,7 @@
 **[[Paper](https://iris.unimore.it/retrieve/handle/11380/1212263/282584/3DV_2020.pdf)]  [[Project Page](https://aimagelab.ing.unimore.it/imagelab/researchActivity.asp?idActivity=32)]**
 
 <p align="center" width="100%">
-  <img src="./img/model.png"
+  <img src="./img/output.png"
   style="background-color: white; padding: 0;
   width="100%" />
 </p>
@@ -41,40 +41,36 @@
 
 ## Использование модели
 
-### 1. Настройка окружения
-Create an environment into the folder `.venv`
+### 1. Создайте окружение в директории `.venv`
 ```
 python -m venv .venv
 ```
-
-Activate the environment
+### 2. Активируйте окружение
 ```
 .venv\Scripts\activate
 ```
-
-Run the command:
+### 3. Установите библиотеки
 ```
 pip install -r requirements.txt
 ```
-In the `.venv`-environment find the file `\.venv\Lib\site-packages\imgaug\imgaug.py` and replace
+### 4. В файле `\.venv\Lib\site-packages\imgaug\imgaug.py` замените сроки
 ```
 NP_FLOAT_TYPES = ...
 NP_INT_TYPES = ...
 NP_UINT_TYPES = ...
 ```
-by the lines:
+на следующие:
 ```
 NP_FLOAT_TYPES = {np.float16, np.float32, np.float64}
 NP_INT_TYPES = {np.int8, np.int16, np.int32, np.int64}
 NP_UINT_TYPES = {np.uint8, np.uint16, np.uint32, np.uint64}
 ```
-### 2. Веса
+### 5. Скачайте веса предобученной модели
+[Веса модели](?? "Pretrained weights") поместите в директорию `checkpoints/Bukva/`.
 
-Скачайте [веса модели](?? "Pretrained weights") в директорию `checkpoints/Bukva/`.
+### 6. Запустите DEMO (Streamlit)
 
-### 3. DEMO (Streamlit)
-
-
+...
 
 ## Работа с архитектурой
 ### Файл конфигурации и структура проекта
@@ -105,8 +101,6 @@ project/
 ```
 
 ### Датасет
-Архитектура настроена на работу с кадрами в качестве входных данных.
-
 Датасет необходимо разместить в директории `datasets/Bukva/`.
 
 Структура датасета:
