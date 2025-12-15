@@ -14,11 +14,12 @@
 
 **[[Paper](https://iris.unimore.it/retrieve/handle/11380/1212263/282584/3DV_2020.pdf)]  [[Project Page](https://aimagelab.ing.unimore.it/imagelab/researchActivity.asp?idActivity=32)]**
 
-В статье предложена архитектура для задачи распознавания динамических жестов в системах автоматики. В том числе со сбором информации одновременно с разных типов датчиков.
-
 <p align="center" width="100%">
   <img src="./img/model.png" width="90%" />
 </p>
+
+
+В статье предложена архитектура для задачи распознавания динамических жестов в системах автоматики. В том числе со сбором информации одновременно с разных типов датчиков.
 <p align="center" width="100%">
   <img src="./img/briareo.gif" width="70%" />
 </p>
@@ -135,12 +136,12 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 * [Кирилл Зайцев]()
 
 
-## Датасет [Bukva&copy;](https://github.com/ai-forever/bukva?tab=readme-ov-file#bukva-russian-sign-language-alphabet-dataset)
+## About [Bukva&copy;](https://github.com/ai-forever/bukva?tab=readme-ov-file#bukva-russian-sign-language-alphabet-dataset)
 
 <figure>
   <img src='img/bukva_pipeline.png'
       style='width:100%; height:auto;'>
-  <figcaption>Последовательность создания датасета Bukva.</figcaption>
+  <figcaption>↑Последовательность создания датасета Bukva.</figcaption>
 </figure>
 
 Запись видеороликов осуществлялась разными людьми по инструкции разработчиков датасета.
@@ -149,7 +150,7 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 <figure>
   <img src='img/bukva.gif'
       style='width:100%; height:auto;'>
-  <figcaption>Эталонная демонстрация жестов (инструкция).</figcaption>
+  <figcaption>↑Эталонная демонстрация жестов (инструкция).</figcaption>
 </figure>
 
 Видеоролики фильтрованы разработчиками датасета по следующим правилам:
@@ -164,7 +165,7 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 <figure>
   <img src='img/bukva_gestures.png'
       style='width:100%; height:auto;'>
-  <figcaption>Фрагменты итогового датасета.</figcaption>
+  <figcaption>↑Фрагменты итогового датасета.</figcaption>
 </figure>
 
 На последнем этапе размечены интервалы. Разметка осуществлялась тремя разными пользователями с последующей агрегацией интервалов.
@@ -172,7 +173,7 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 <figure>
   <img src='img/trimmer_marks.png'
       style='width:100%; height:auto;'>
-  <figcaption>Разметка интервалов видеороликов.</figcaption>
+  <figcaption>↑Разметка интервалов видеороликов.</figcaption>
 </figure>
 
 **Подробнее**
