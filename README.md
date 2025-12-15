@@ -1,8 +1,139 @@
-# A Transformer-Based Dactile Language Gesture Recognition
+# Transformer-Based Dactile Language Gesture Recognition
 
 Решена задача перевода (распознавания, классификации) изолированных жестов русского дактильного языка. Область применения - тренажеры алфавита языка жестов.
 
 <img src='img/gesture_set.png' style='width:100%; height:auto;'>
+
+## Архитектура модели
+
+В основу проекта положена архитектура, описанная в статье
+
+*A. D’Eusanio, A. Simoni, S. Pini, G. Borghi, R. Vezzani, R. Cucchiara*  
+**A Transformer-Based Network for Dynamic Hand Gesture Recognition**  
+*In International Conference on 3D Vision (3DV) 2020.*
+
+**[[Paper](https://iris.unimore.it/retrieve/handle/11380/1212263/282584/3DV_2020.pdf)]  [[Project Page](https://aimagelab.ing.unimore.it/imagelab/researchActivity.asp?idActivity=32)]**
+
+В статье предложена архитектура для задачи распознавания динамических жестов в системах автоматики. В том числе со сбором информации одновременно с разных типов датчиков.
+
+<p align="center" width="100%">
+  <img src="./img/model.png" width="90%" />
+</p>
+<p align="center" width="100%">
+  <img src="./img/briareo.gif" width="70%" />
+</p>
+
+
+## Подготовка датасета
+Архитектура настроена на работу с кадрами в качестве входных данных.Преобразование видео-данных в наборы кадров выполнено скриптом [framer.py](src\utils\framer.py). Скрипт реализует следующую последовательность операций.
+
+## Обучение
+
+
+Веса в каталоге
+
+Инструкция по интеграции весов (правки в )
+
+## Использование модели
+
+### 1. Настройка окружения
+Create an environment into the folder `.venv`
+```
+python -m venv .venv
+```
+
+Activate the environment
+```
+.venv\Scripts\activate
+```
+
+Run the command:
+```
+pip install -r requirements.txt
+```
+In the `.venv`-environment find the file `\.venv\Lib\site-packages\imgaug\imgaug.py` and replace
+```
+NP_FLOAT_TYPES = ...
+NP_INT_TYPES = ...
+NP_UINT_TYPES = ...
+```
+by the lines:
+```
+NP_FLOAT_TYPES = {np.float16, np.float32, np.float64}
+NP_INT_TYPES = {np.int8, np.int16, np.int32, np.int64}
+NP_UINT_TYPES = {np.uint8, np.uint16, np.uint32, np.uint64}
+```
+### 2. Веса
+
+Скачайте [веса модели](?? "Pretrained weights") в директорию `checkpoints/Bukva/`.
+
+### 3. DEMO (Streamlit)
+
+
+
+## Работа с архитектурой
+### Файл конфигурации и структура проекта
+Гиперпараметры задаются в файле [config.json](src\hyperparameters\Bukva\train.json "hyperparameters").
+
+Основные параметры:
+- **phase** - "train" или "test".
+- **data-->data_path** - путь к каталогу `frames`, содержащему датасет в кадрах.
+- **data-->n_classes** - количество классов в датасете.
+
+Рекомендуемая структура проекта:
+
+```
+project/
+├── datasets/
+│   └── Bukva/
+│       └── frames/
+│           └── f4356671bbe8c7e3c0a3c9c54e5b713e/
+│           └── fd77732d-9188-4baa-a678-b5fb7298c13f/
+│           └── ...
+│       └── annotations.csv
+├── checkpoints/
+│   └── Bukva/
+│       └── *.pth
+...
+├── README.md
+└── requirements.txt
+```
+
+### Датасет
+Архитектура настроена на работу с кадрами в качестве входных данных.
+
+Датасет необходимо разместить в директории `datasets/Bukva/`.
+
+Структура датасета:
+- `frames` - каталог, содержащий набор подкаталогов по `n_frames`-картинок в каждом.
+- `annotations.csv` - файл аннотаций.
+
+### Веса
+Реализована возможность подгрузить веса модели - как на `test`, так и на дообучение в `train`. Файл весов `*.pth` необходимо разместить в директории `checkpoints/Bukva/`.
+
+### Запуск на обучение
+```
+python src/main.py --hypes src/hyperparameters/Bukva/config.json 
+```
+
+### Запуск на дообучение 
+```
+python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkpoints/Bukva/best_train_bukva.pth
+```
+
+### Запуск на тест 
+```
+python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkpoints/Bukva/best_train_bukva.pth --phase test
+```
+
+## Авторы
+
+* [Роман Горбунов](https://github.com/romangorbunov91)
+* [Станислава Иваненко](https://github.com/smthCreate)
+* [Максим Шугаев](https://github.com/knjii)
+* [Анжелина Абдулаева](https://github.com/anzhelina0)
+* [Кирилл Зайцев]()
+
 
 ## Датасет [Bukva&copy;](https://github.com/ai-forever/bukva?tab=readme-ov-file#bukva-russian-sign-language-alphabet-dataset)
 
@@ -44,105 +175,11 @@
   <figcaption>Разметка интервалов видеороликов.</figcaption>
 </figure>
 
-Подробнее:
+**Подробнее**
 - [Bukva: алфавит русского жестового языка](https://habr.com/ru/companies/sberdevices/articles/850858/)
 - [Bukva: Russian Sign Language Alphabet](https://arxiv.org/abs/2410.08675)
 
-## Архитектура модели
-
-В основу проекта положена архитектура, описанная в статье
-
-*A. D’Eusanio, A. Simoni, S. Pini, G. Borghi, R. Vezzani, R. Cucchiara*  
-**A Transformer-Based Network for Dynamic Hand Gesture Recognition**  
-*In International Conference on 3D Vision (3DV) 2020.*
-
-**[[Paper](https://iris.unimore.it/retrieve/handle/11380/1212263/282584/3DV_2020.pdf)]  [[Project Page](https://aimagelab.ing.unimore.it/imagelab/researchActivity.asp?idActivity=32)]**
-
-В статье предложена архитектура для задачи распознавания динамических жестов в системах автоматики. В том числе со сбором информации одновременно с разных типов датчиков.
-
-<p align="center" width="100%">
-  <img src="./img/model.png" width="90%" />
-</p>
-<p align="center" width="100%">
-  <img src="./img/briareo.gif" width="70%" />
-</p>
-
-
-## Подготовка датасета
-
-
-## Обучение
-
-
-Веса в каталоге
-
-Инструкция по интеграции весов (правки в )
-
-## Getting Started
-These instructions will give you a copy of the project up and running on your local machine for development and testing 
-purposes. There isn't much to do, just install the prerequisites and download all the files.
-
-### Prerequisites
-Create an environment into the folder `.venv`
-```
-python -m venv .venv
-```
-
-Activate the environment
-```
-.venv\Scripts\activate
-```
-
-Run the command:
-```
-pip install -r requirements.txt
-```
-
-In `\.venv\Lib\site-packages\imgaug\imgaug.py` replace to
-```
-NP_FLOAT_TYPES = {np.float16, np.float32, np.float64}
-NP_INT_TYPES = {np.int8, np.int16, np.int32, np.int64}
-NP_UINT_TYPES = {np.uint8, np.uint16, np.uint32, np.uint64}
-```
-
-## Download datasets
+**Скачать датасет Bukva**
 
 - **[Bukva-video Full Official](https://rndml-team-cv.obs.ru-moscow-1.hc.sbercloud.ru/datasets/bukva/bukva.zip "Bukva: Russian Sign Language Alphabet Dataset")**
 - **[Bukva-video Trimmed only](https://drive.google.com/drive/folders/1rXMtY4ja6oxHKdgiV-5taWaEJc1R3kjN?usp=sharing "G-Drive copy")**
-
-## Pretrained model
-Pytorch pretrained models are available at this [link](?? "Pretrained weights").
-
-## Setup configuration
-For this project we used a json file [train.json](src\hyperparameters\Bukva\train.json "hyperparameters"), located in the `hyperparameters` folder.
-
-
-In there, you can set several parameters, like:
-
-- **Dataset**, Briareo or NVGestures.
-- **phase**, select if training or testing.
-- **Data-type**, select which source is used: depth, rgb, ir, surface normals or optical-flow.
-- **Data-Nframe**, length of the input sequence, default: 40 frame.
-- **Data-path**, path where you downloaded and unzipped the dataset.
-
-## Usage TRAIN
-```
-python src/main.py --hypes src/hyperparameters/Bukva/config.json 
-```
-## Usage from saved weights (TEST or continue TRAIN)
-```
-python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkpoints/Bukva/best_train_bukva.pth
-```
-
-## Авторы
-
-* [Роман Горбунов](https://github.com/romangorbunov91)
-* [Станислава Иваненко](https://github.com/smthCreate)
-* [Максим Шугаев](https://github.com/knjii)
-* [Анжелина Абдулаева](https://github.com/anzhelina0)
-* [Кирилл Зайцев]()
-
-
-```
-pip freeze > requirements.txt
-```
