@@ -120,7 +120,7 @@ $$\begin{equation}
 
 
 <div class="alert alert-info" style="padding: 10px; border-left: 4px solid #FF9800; background-color: #FFF3E0; margin: 10px 0;">
-  ⚠️ <strong>Внимание:</strong> На инференсе необходимо использовать точно такой же препроцессинг.
+  ⚠️ <strong><bold>Внимание:</bold></strong> На инференсе необходимо использовать точно такой же препроцессинг.
 </div>
 
 ## Обучение
