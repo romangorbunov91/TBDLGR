@@ -118,6 +118,11 @@ $$\begin{equation}
   width="100%" />
 </p>
 
+
+<div class="alert alert-info" style="padding: 10px; border-left: 4px solid #FF9800; background-color: #FFF3E0; margin: 10px 0;">
+  ⚠️ <strong>Внимание:</strong> На инференсе необходимо использовать точно такой же препроцессинг.
+</div>
+
 ## Обучение
 
 Обучение выполнено на NVIDIA GeForce RTX 3060 (12 GB видеопамяти). AdamW (weight_decay=1e-4, base_lr=1e-4), 100 эпох, batch_size=8.
@@ -249,7 +254,7 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 <figure>
   <img src='img/bukva_pipeline.png'
       style='width:100%; height:auto;'>
-  <figcaption>↑Последовательность создания датасета Bukva.</figcaption>
+  <figcaption>↑Последовательность создания датасета Bukva↑</figcaption>
 </figure>
 
 Запись видеороликов осуществлялась разными людьми по инструкции разработчиков датасета.
@@ -258,7 +263,7 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 <figure>
   <img src='img/bukva.gif'
       style='width:100%; height:auto;'>
-  <figcaption>↑Эталонная демонстрация жестов (инструкция).</figcaption>
+  <figcaption>↑Эталонная демонстрация жестов (инструкция контрибьютерам)↑</figcaption>
 </figure>
 
 Видеоролики фильтрованы разработчиками датасета по следующим правилам:
@@ -273,7 +278,7 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 <figure>
   <img src='img/bukva_gestures.png'
       style='width:100%; height:auto;'>
-  <figcaption>↑Фрагменты итогового датасета.</figcaption>
+  <figcaption>↑Фрагменты итогового датасета↑</figcaption>
 </figure>
 
 На последнем этапе размечены интервалы. Разметка осуществлялась тремя разными пользователями с последующей агрегацией интервалов.
@@ -281,7 +286,7 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 <figure>
   <img src='img/trimmer_marks.png'
       style='width:100%; height:auto;'>
-  <figcaption>↑Разметка интервалов видеороликов.</figcaption>
+  <figcaption>↑Разметка интервалов видеороликов↑</figcaption>
 </figure>
 
 **Подробнее**
