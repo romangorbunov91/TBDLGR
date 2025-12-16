@@ -31,37 +31,37 @@ $$\begin{equation}
 где функция
 
 $$\begin{equation}
-    \Gamma: \mathbb{R}^{m \times w \times h \times c} \in \mathbb{R}^n.
+    \textbf{\Gamma}: \mathbb{R}^{m \times w \times h \times c} \in \mathbb{R}^n.
 \end{equation}$$
 
-Полное преобразование $\Gamma$ осуществляется в три этапа:
+Полное преобразование $\textbf{\Gamma}$ осуществляется в три этапа:
 
 $$\begin{equation}
-    F: \mathbb{R}^{m \times w \times h \times c} \in \mathbb{R}^{m \times k},
-\end{equation}$$
-
-$$\begin{equation}
-    H: \mathbb{R}^{m \times k} \in \mathbb{R}^{l},
+    \textbf{F}: \mathbb{R}^{m \times w \times h \times c} \in \mathbb{R}^{m \times k},
 \end{equation}$$
 
 $$\begin{equation}
-    Y: \mathbb{R}^{l} \in \mathbb{R}^{n}.
+    \textbf{H}: \mathbb{R}^{m \times k} \in \mathbb{R}^{l},
 \end{equation}$$
 
-### 1. Выделение визуальных фичей (преобразование $F$)
+$$\begin{equation}
+    \textbf{Y}: \mathbb{R}^{l} \in \mathbb{R}^{n}.
+\end{equation}$$
+
+### 1. Выделение визуальных фичей (преобразование $\textbf{F}$)
 
 Реализуется с помощью CNN-модели в качестве backbone.
 
 Сначала к каждому кадру ${S_t^j \in S_t}$ применяется преобразование
 
 $$\begin{equation}
-    G: \mathbb{R}^{w \times h \times c} \in \mathbb{R}^{k},
+    \textbf{G}: \mathbb{R}^{w \times h \times c} \in \mathbb{R}^{k},
 \end{equation}$$
 
 выделяющее $k$ независимых визуальных фичей:
 
 $$\begin{equation}
-    f_t^j = G \left( S_t^j \right).
+    f_t^j = \textbf{G} \left( S_t^j \right).
 \end{equation}$$
 
 Затем результаты конкатинируются в набор ${f_t \in \mathbb{R}^{m \times k}}$:
@@ -73,23 +73,23 @@ $$\begin{equation}
 Полное преобразование:
 
 $$\begin{equation}
-    f_t = F \left( S_t \right).
+    f_t = \textbf{F} \left( S_t \right).
 \end{equation}$$
 
-### 2. Агрегирование визуальных признаков (преобразование $H$)
+### 2. Агрегирование визуальных признаков (преобразование $\textbf{H}$)
 
 Энкодинг визуальных фичей в "temporal" фичи реализуется с помощью attention.
 
 $$\begin{equation}
-    h_t = H \left( f_t \right).
+    h_t = \textbf{H} \left( f_t \right).
 \end{equation}$$
 
-### 3. Преобразование в распределение вероятностей классов (преобразование $Y$)
+### 3. Преобразование в распределение вероятностей классов (преобразование $\textbf{Y}$)
 
 На последней этапе формируется распределение вероятностей классов
 
 $$\begin{equation}
-    y_t = Y \left( h_t \right),
+    y_t = \textbf{Y} \left( h_t \right),
 \end{equation}$$
 
 где ${y_t^i \in [0, 1]}$,
