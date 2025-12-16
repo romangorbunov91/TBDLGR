@@ -118,6 +118,11 @@ $$\begin{equation}
   width="100%" />
 </p>
 
+<p align="center" width="100%">
+  <img src="./img/framer_demo.drawio.png"
+  style="background-color: white; padding: 0;
+  width="100%" />
+</p>
 
 <div class="alert alert-info" style="padding: 10px; border-left: 4px solid #FF9800; background-color: #FFF3E0; margin: 10px 0;">
   ⚠️ <strong><bold>Внимание:</bold></strong> На инференсе необходимо использовать точно такой же препроцессинг.
