@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from pathlib import Path
 
 import numpy as np
@@ -139,9 +140,16 @@ class GestureTest(object):
         # Compute confusion matrix
         cm = confusion_matrix(all_labels, all_preds)
 
-        # Plot and save to PDF
-        fig, ax = plt.subplots(figsize=(16, 12))  # Adjust size if needed
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=range(len(cm)))
+        # --- Загрузка текстовых меток ---
+        label_mapping_path = "./src/datasets/bukva_label_mapping.csv"  # или укажите полный путь, если нужно
+        label_df = pd.read_csv(label_mapping_path)
+        # Убедимся, что метки отсортированы по label_encoded
+        label_df = label_df.sort_values('label_encoded')
+        class_names = label_df['text'].tolist()
+
+        # Plot and save to PDF.
+        fig, ax = plt.subplots(figsize=(16, 12))
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names)
         disp.plot(cmap=plt.cm.Blues, ax=ax)
         plt.title(f"Confusion Matrix (TEST mean accuracy: {accuracy:.4f})")
 
