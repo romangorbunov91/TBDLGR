@@ -134,6 +134,11 @@ $$\begin{equation}
 
 Тест выполнялся на отдельной сбалансированной выборке размера 680 (по 20 на класс).
 
+<p align="center" width="100%">
+  <img src="./img/train_val_test_hist.png"
+  width="100%" />
+</p>
+
 [Лог обучения](https://drive.google.com/file/d/14xLxk9_9wTni-6gWNMW-Kr4xLW-6E7ng/view?usp=drive_link)
 
 ## Результаты
