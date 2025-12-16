@@ -55,7 +55,7 @@ class GestureTest(object):
         self.data_loader = None
 
         # Module load and save utility.
-        self.device = self.configer.get("device")
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model_utility = ModuleUtilizer(self.configer)      #: Model utility for load, save and update optimizer
         self.net = None
 

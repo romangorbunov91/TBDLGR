@@ -181,7 +181,10 @@ NP_UINT_TYPES = {np.uint8, np.uint16, np.uint32, np.uint64}
 
 ### 6. Запустите DEMO (Streamlit)
 
-...
+В терминале выполните
+```
+streamlit run src\demo_videofile.py
+```
 
 ### Примечания
 

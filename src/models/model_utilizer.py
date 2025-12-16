@@ -14,7 +14,7 @@ class ModuleUtilizer(object):
     def __init__(self, configer):
         """Class constructor for Module utility"""
         self.configer = configer
-        self.device = self.configer.get("device")
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.save_policy = self.configer.get("checkpoints", "save_policy")
         if self.save_policy in ["early_stop", "earlystop"]:

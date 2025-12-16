@@ -5,9 +5,11 @@ import numpy as np
 from pathlib import Path
 import sys
 import pandas as pd
+from utils.framer_functions import extract_frames
+from datasets.utils.normalize import normalize
+import imgaug.augmenters as iaa
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
-
 MODEL_PATH = r".\checkpoints\Bukva\best_train_bukva-crop_iaanoop_360_270_224_224_epoch_100.pth"
 
 st.title("✌️ Распознаватель РЖЯ (Дактиль) - Режим видеофайла")
@@ -24,55 +26,9 @@ if 'recognition_result' not in st.session_state:
 if 'top3_result' not in st.session_state:
     st.session_state.top3_result = None
 
-def extract_frames_from_video(video_path, num_frames=40):
-    frames = []
-    cap = cv2.VideoCapture(video_path)
-    
-    if not cap.isOpened():
-        st.error(f"Не удалось открыть видеофайл: {video_path}")
-        return []
-    
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    
-    if total_frames < num_frames:
-        st.warning(f"В видео всего {total_frames} кадров, нужно минимум {num_frames}")
-        num_frames = total_frames
-    
-    step = max(1, total_frames // num_frames)
-    
-    st.info(f"Видео: {total_frames} кадров, {fps:.1f} FPS. Извлекаем {num_frames} кадров...")
-    
-    extracted_indices = []
-    for i in range(num_frames):
-        frame_pos = min(i * step, total_frames - 1)
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
-        
-        ret, frame = cap.read()
-        if ret:
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frames.append(rgb_frame)
-            extracted_indices.append(frame_pos)
-        else:
-            st.warning(f"Не удалось прочитать кадр на позиции {frame_pos}")
-            if frames:
-                black_frame = np.zeros_like(frames[0])
-                frames.append(black_frame)
-            else:
-                black_frame = np.zeros((480, 640, 3), dtype=np.uint8)
-                frames.append(black_frame)
-    
-    cap.release()
-    
-    if extracted_indices:
-        st.success(f"Извлечено {len(frames)} кадров (позиции: {extracted_indices[0]}-{extracted_indices[-1]})")
-    
-    return frames
-
 @st.cache_resource
 def load_model():
     try:
-        print(MODEL_PATH)
         from models.temporal import GestureTransformer
         import json
         with open('src/hyperparameters/Bukva/config.json', 'r') as f:
@@ -121,17 +77,19 @@ def load_model():
         return None
 
 def prepare_frames_for_model(frames):
-    processed_frames = []
+    clip = list()
     for frame in frames:
         resized = cv2.resize(frame, (224, 224))
-        normalized = resized / 255.0
-        processed_frames.append(normalized)
-    
-    tensor = torch.tensor(np.array(processed_frames), dtype=torch.float32)
-    tensor = tensor.permute(0, 3, 1, 2)
-    tensor = tensor.unsqueeze(0)
-    
-    return tensor
+        clip.append(resized)
+    clip = np.array(clip).transpose(1, 2, 3, 0)
+    clip = normalize(clip)
+    transforms = iaa.Noop()
+    aug_det = transforms.to_deterministic()
+    clip = np.array([aug_det.augment_image(clip[..., i]) for i in range(clip.shape[-1])]).transpose(1, 2, 3, 0)
+    clip = torch.from_numpy(clip.reshape(clip.shape[0], clip.shape[1], -1).transpose(2, 0, 1))
+    clip = clip.float()
+    clip = clip.unsqueeze(0)
+    return clip
 
 def predict_gesture(model, frames):
     if model is None or len(frames) == 0:
@@ -151,17 +109,15 @@ def predict_gesture(model, frames):
         
         with torch.no_grad():
             outputs = model(input_tensor)
-            
             probabilities = torch.nn.functional.softmax(outputs, dim=1)
             top3_conf, top3_idx = torch.topk(probabilities, 3)
-
             top3_predictions = []
             for i in range(3):
                 idx_val = top3_idx[0, i].item()
                 conf_val = top3_conf[0, i].item()
                 gesture_name = class_names[idx_val] if idx_val < len(class_names) else f"Класс {idx_val}"
                 top3_predictions.append((gesture_name, conf_val))
-
+            
             confidence, predicted_idx = torch.max(probabilities, 1)
             confidence_value = confidence.item()
             predicted_idx_value = predicted_idx.item()
@@ -195,14 +151,23 @@ if uploaded_file is not None:
     
     if st.sidebar.button("🎬 Извлечь кадры и распознать жест", type="primary"):
         with st.spinner("Извлекаем кадры из видео..."):
-            frames = extract_frames_from_video(temp_video_path, 40)
             
+            frames_RGB = extract_frames(
+                video_path=temp_video_path,
+                num_frames=40,
+                method='window',
+                resize_flag=True
+            )
+            frames = []
+            for frame in frames_RGB:
+                frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
             if frames:
                 st.session_state.extracted_frames = frames
                 
                 st.subheader("📷 Извлечённые кадры из видео")
                 cols = st.columns(4)
-                for idx, frame in enumerate(frames[:10]):
+                for idx, frame in enumerate(frames):
                     with cols[idx % 4]:
                         st.image(frame, caption=f"Кадр {idx+1}", width=150)
                 
