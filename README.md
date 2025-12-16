@@ -31,10 +31,10 @@ $$\begin{equation}
 где функция
 
 $$\begin{equation}
-    \textbf{\Gamma}: \mathbb{R}^{m \times w \times h \times c} \in \mathbb{R}^n.
+    \Gamma: \mathbb{R}^{m \times w \times h \times c} \in \mathbb{R}^n.
 \end{equation}$$
 
-Полное преобразование $\textbf{\Gamma}$ осуществляется в три этапа:
+Полное преобразование $\Gamma$ осуществляется в три этапа:
 
 $$\begin{equation}
     \textbf{F}: \mathbb{R}^{m \times w \times h \times c} \in \mathbb{R}^{m \times k},
