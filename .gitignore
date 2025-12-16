@@ -13,6 +13,7 @@
 /src/utils/__pycache__
 
 !/scratch/
+!/demo/
 
 !/.venv/Lib/site-packages/imgaug/imgaug.py
 

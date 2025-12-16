@@ -13,7 +13,7 @@ from datasets.Bukva import Bukva
 from models.model_utilizer import ModuleUtilizer
 
 # Import Model.
-from models.temporal import GestureTransoformer
+from models.temporal import GestureTransformer
 from torch.optim.lr_scheduler import MultiStepLR
 
 
@@ -107,14 +107,17 @@ class GestureTrainer(object):
         self.loss = nn.CrossEntropyLoss().to(self.device)
 
         # Selecting correct model and normalization variable based on type variable
-        self.net = GestureTransoformer(self.backbone, self.in_planes, self.n_classes,
-                                       pretrained=self.configer.get("network", "pretrained"),
-                                       n_head=self.configer.get("network", "n_head"),
-                                       dropout_backbone=self.configer.get("network", "dropout2d"),
-                                       dropout_transformer=self.configer.get("network", "dropout1d"),
-                                       dff=self.configer.get("network", "ff_size"),
-                                       n_module=self.configer.get("network", "n_module")
-                                       )
+        self.net = GestureTransformer(
+            self.backbone,
+            self.in_planes,
+            self.n_classes,
+            pretrained=self.configer.get("network", "pretrained"),
+            n_head=self.configer.get("network", "n_head"),
+            dropout_backbone=self.configer.get("network", "dropout2d"),
+            dropout_transformer=self.configer.get("network", "dropout1d"),
+            dff=self.configer.get("network", "ff_size"),
+            n_module=self.configer.get("network", "n_module")
+        )
 
         # Initializing training
         self.iters = 0

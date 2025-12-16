@@ -13,7 +13,7 @@ from datasets.Bukva import Bukva
 from models.model_utilizer import ModuleUtilizer
 
 # Import Model
-from models.temporal import GestureTransoformer
+from models.temporal import GestureTransformer
 
 # Import Utils
 from tqdm import tqdm
@@ -75,7 +75,7 @@ class GestureTest(object):
         self.in_planes = 3
 
         # Selecting correct model and normalization variable based on type variable
-        self.net = GestureTransoformer(self.backbone, self.in_planes, self.n_classes,
+        self.net = GestureTransformer(self.backbone, self.in_planes, self.n_classes,
                                        pretrained=self.configer.get("network", "pretrained"),
                                        n_head=self.configer.get("network", "n_head"),
                                        dropout_backbone=self.configer.get("network", "dropout2d"),

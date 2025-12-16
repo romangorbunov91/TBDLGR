@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 
 def position_embedding(input, d_model):
-    input = input.view(-1, 1)
+    input = input.reshape(-1, 1)
     dim = torch.arange(d_model // 2, dtype=torch.float32, device=input.device).view(1, -1)
     sin = torch.sin(input / 10000 ** (2 * dim / d_model))
     cos = torch.cos(input / 10000 ** (2 * dim / d_model))
@@ -100,12 +100,12 @@ class MultiHeadAttention(nn.Module):
         return self.layer_norm(queries + att)
 
 class EncoderSelfAttention(nn.Module):
-    def __init__(self, d_model, d_k, d_v, n_head, dff=2048, dropout_transformer=.1, n_module=6):
+    def __init__(self, d_model, d_k, d_v, n_head, dff, dropout_transformer, n_module):
         super(EncoderSelfAttention, self).__init__()
         self.encoder = nn.ModuleList([MultiHeadAttention(d_model, d_k, d_v, n_head, dff, dropout_transformer)
                                       for _ in range(n_module)])
     def forward(self, x):
-        in_encoder = x + sinusoid_encoding_table(x.shape[1], x.shape[2]).expand(x.shape).cuda()
+        in_encoder = x + sinusoid_encoding_table(x.shape[1], x.shape[2]).expand(x.shape).to(x.device)
         for l in self.encoder:
             in_encoder = l(in_encoder, in_encoder, in_encoder)
         return in_encoder
