@@ -57,6 +57,7 @@ $$\begin{equation}
 $$\begin{equation}
     G: \mathbb{R}^{w \times h \times c} \in \mathbb{R}^{k},
 \end{equation}$$
+
 выделяющее $k$ независимых визуальных фичей:
 
 $$\begin{equation}
@@ -90,17 +91,12 @@ $$\begin{equation}
 $$\begin{equation}
     y_t = Y \left( h_t \right),
 \end{equation}$$
+
 где ${y_t^i \in [0, 1]}$,
 
 $$\begin{equation}
     \sum_{i=1}^{n} y_t^i = 1.
 \end{equation}$$
-
-<!-- 
-<p align="center" width="100%">
-  <img src="./img/briareo.gif" width="70%" />
-</p>
--->
 
 ## Подготовка датасета
 Архитектура настроена на работу с кадрами в качестве входных данных.
