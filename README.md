@@ -185,6 +185,7 @@ NP_UINT_TYPES = {np.uint8, np.uint16, np.uint32, np.uint64}
 ```
 streamlit run src\demo_videofile.py
 ```
+Видео для теста на демонстрации: [Bukva-video Trimmed only](https://drive.google.com/drive/folders/1rXMtY4ja6oxHKdgiV-5taWaEJc1R3kjN?usp=sharing "G-Drive copy")
 
 ### Примечания
 
@@ -257,7 +258,6 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 * [Анжелина Абдулаева](https://github.com/anzhelina0)
 * [Кирилл Зайцев]()
 
-
 ## About [Bukva&copy;](https://github.com/ai-forever/bukva?tab=readme-ov-file#bukva-russian-sign-language-alphabet-dataset)
 
 <figure>
@@ -267,7 +267,6 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 </figure>
 
 Запись видеороликов осуществлялась разными людьми по инструкции разработчиков датасета.
-
 
 <figure>
   <img src='img/bukva.gif'
@@ -302,7 +301,4 @@ python src/main.py --hypes src/hyperparameters/Bukva/config.json --resume checkp
 - [Bukva: алфавит русского жестового языка](https://habr.com/ru/companies/sberdevices/articles/850858/)
 - [Bukva: Russian Sign Language Alphabet](https://arxiv.org/abs/2410.08675)
 
-**Скачать датасет Bukva**
-
-- **[Bukva-video Full Official](https://rndml-team-cv.obs.ru-moscow-1.hc.sbercloud.ru/datasets/bukva/bukva.zip "Bukva: Russian Sign Language Alphabet Dataset")**
-- **[Bukva-video Trimmed only](https://drive.google.com/drive/folders/1rXMtY4ja6oxHKdgiV-5taWaEJc1R3kjN?usp=sharing "G-Drive copy")**
+[**Скачать датасет Bukva**](https://rndml-team-cv.obs.ru-moscow-1.hc.sbercloud.ru/datasets/bukva/bukva.zip "Full Official Bukva: Russian Sign Language Alphabet Dataset")

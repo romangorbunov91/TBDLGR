@@ -11,7 +11,7 @@ import imgaug.augmenters as iaa
 from utils.framer_functions import resize_special
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
-MODEL_PATH = r".\checkpoints\Bukva\best_train_bukva-crop_iaanoop_360_270_224_224_epoch_100.pth"
+MODEL_PATH = r".\checkpoints\Bukva\best_train_bukva.pth"
 
 st.title("✌️ Распознаватель РЖЯ (Дактиль) - Режим веб-камеры")
 st.markdown("""

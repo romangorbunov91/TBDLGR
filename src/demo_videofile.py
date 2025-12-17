@@ -10,7 +10,7 @@ from datasets.utils.normalize import normalize
 import imgaug.augmenters as iaa
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
-MODEL_PATH = r".\checkpoints\Bukva\best_train_bukva-crop_iaanoop_360_270_224_224_epoch_100.pth"
+MODEL_PATH = r".\checkpoints\Bukva\best_train_bukva.pth"
 
 st.title("✌️ Распознаватель РЖЯ (Дактиль) - Режим видеофайла")
 st.markdown("""
