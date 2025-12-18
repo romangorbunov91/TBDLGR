@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 import sys
 import pandas as pd
-from utils.framer_functions import extract_frames
+from utils.framer import extract_frames
 from datasets.utils.normalize import normalize
 import imgaug.augmenters as iaa
 
@@ -169,7 +169,7 @@ if uploaded_file is not None:
                 cols = st.columns(4)
                 for idx, frame in enumerate(frames):
                     with cols[idx % 4]:
-                        st.image(frame, caption=f"Кадр {idx+1}", width=150)
+                        st.image(frame, caption=f"Кадр {idx+1}", width=100)
                 
                 if 'model' not in st.session_state:
                     with st.spinner("Загружаем модель распознавания..."):

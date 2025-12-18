@@ -8,7 +8,7 @@ import sys
 import pandas as pd
 from datasets.utils.normalize import normalize
 import imgaug.augmenters as iaa
-from utils.framer_functions import resize_special
+from utils.framer import resize_special
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 MODEL_PATH = r".\checkpoints\Bukva\best_train_bukva.pth"
