@@ -169,7 +169,7 @@ if uploaded_file is not None:
                 cols = st.columns(4)
                 for idx, frame in enumerate(frames):
                     with cols[idx % 4]:
-                        st.image(frame, caption=f"Кадр {idx+1}", width=100)
+                        st.image(frame, caption=f"Кадр {idx+1}", width=150)
                 
                 if 'model' not in st.session_state:
                     with st.spinner("Загружаем модель распознавания..."):
