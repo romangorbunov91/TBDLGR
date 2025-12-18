@@ -185,7 +185,7 @@ NP_UINT_TYPES = {np.uint8, np.uint16, np.uint32, np.uint64}
 ```
 streamlit run src\demo_videofile.py
 ```
-Видео для теста на демонстрации: [Bukva-video Trimmed only](https://drive.google.com/drive/folders/1rXMtY4ja6oxHKdgiV-5taWaEJc1R3kjN?usp=sharing "G-Drive copy")
+Видеофайлы для теста на демонстрации: [Bukva-video Trimmed only](https://drive.google.com/drive/folders/1rXMtY4ja6oxHKdgiV-5taWaEJc1R3kjN?usp=sharing "G-Drive copy")
 
 ### Примечания
 
@@ -198,11 +198,11 @@ streamlit run src\demo_videofile.py
 Гиперпараметры задаются в файле [config.json](src\hyperparameters\Bukva\train.json "hyperparameters").
 
 Основные параметры:
-- **dataset** - название датасета. ВАЖНО, т.к. фигурирует путях к директориям.
+- **dataset** - название датасета. ВАЖНО, т.к. фигурирует в путях к директориям.
 - **phase** - "train" или "test".
 - **data-->data_path** - путь к каталогу `frames`, содержащему датасет в кадрах.
 - **data-->n_classes** - количество классов в датасете.
-- **checkpoints-->save_policy** - "all" или "best". Вво время обучения в случае "best" веса модели сохраняются только при условии повышения accuracy на валидации, причем перезатираются.
+- **checkpoints-->save_policy** - "all" или "best". Во время обучения в случае "best" веса модели сохраняются только при условии повышения accuracy на валидации, причем предыдущие веса не хранятся.
 
 Рекомендуемая структура проекта:
 
