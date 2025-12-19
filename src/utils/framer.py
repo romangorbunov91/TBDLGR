@@ -67,9 +67,7 @@ annotations = np.genfromtxt(
     encoding='utf-8'    # ← good practice for non-English text
 )
 
-logger.info(f"START: method {SELECTION_METHOD}, target: {N_FRAMES} frames in {len(annotations)} items.")
-
-video_extensions = ('.mp4', '.avi', '.mov', '.mkv')
+video_extensions = ('.mp4', '.avi', '.mov', '.mkv', '.wmv')
 image_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
 
 
@@ -342,6 +340,8 @@ def extract_frames(video_path, num_frames=40, method='window', resize_flag=False
 
 # Основной алгоритм.
 if __name__ == "__main__":
+    logger.info(f"START: method {SELECTION_METHOD}, target: {N_FRAMES} frames in {len(annotations)} items.")
+
     if SOURCE_TYPE == 'frames':
         items = [
             item for item in os.listdir(INPUT_DIR_PATH)
