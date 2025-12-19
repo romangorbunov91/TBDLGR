@@ -1,20 +1,17 @@
-import streamlit as st
 import cv2
-import torch
-import numpy as np
-from pathlib import Path
-import sys
-import pandas as pd
-from utils.framer import extract_frames
-from datasets.utils.normalize import normalize
-import imgaug.augmenters as iaa
+import streamlit as st
+import json
 
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+from utils.framer import extract_frames
+from demo_functions import load_model, predict_gesture 
+
 MODEL_PATH = r".\checkpoints\Bukva\best_train_bukva.pth"
+CONFIG_PATH = r".\src\hyperparameters\Bukva\config.json"
+LABEL_MAP_PATH = r".\src\datasets\bukva_label_map.csv"
 
 st.title("✌️ Распознаватель РЖЯ (Дактиль) - Режим видеофайла")
 st.markdown("""
-Загрузите видеофайл, и система извлечёт из него 40 последовательных кадров для анализа.
+Загрузите видеофайл
 """)
 
 if 'uploaded_video' not in st.session_state:
@@ -25,113 +22,6 @@ if 'recognition_result' not in st.session_state:
     st.session_state.recognition_result = None
 if 'top3_result' not in st.session_state:
     st.session_state.top3_result = None
-
-@st.cache_resource
-def load_model():
-    try:
-        from models.temporal import GestureTransformer
-        import json
-        with open('src/hyperparameters/Bukva/config.json', 'r') as f:
-            config = json.load(f)
-        
-        backbone = config['network']['backbone']
-        n_classes = config['data']['n_classes']
-        n_head = config['network']['n_head']
-        dropout2d = config['network']['dropout2d']
-        dropout1d = config['network']['dropout1d']
-        ff_size = config['network']['ff_size']
-        n_module = config['network']['n_module']
-        pretrained = config['network']['pretrained']
-
-        in_planes = 3
-        
-        model = GestureTransformer(
-            backbone=backbone,
-            in_planes=in_planes,
-            n_classes=n_classes,
-            pretrained=pretrained,
-            n_head=n_head,
-            dropout_backbone=dropout2d,
-            dropout_transformer=dropout1d,
-            dff=ff_size,
-            n_module=n_module
-        )
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        checkpoint = torch.load(MODEL_PATH, map_location=device)
-        state_dict = checkpoint['state_dict']
-        
-        if list(state_dict.keys())[0].startswith('module.'):
-            state_dict = {k[7:]: v for k, v in state_dict.items()}
-        
-        model.load_state_dict(state_dict, strict=False)
-        model.eval()
-        
-        for param in model.parameters():
-            param.requires_grad = False
-        
-        st.success(f"✅ Модель загружена успешно!")
-        return model
-        
-    except Exception as e:
-        st.error(f"❌ Ошибка загрузки модели: {e}")
-        return None
-
-def prepare_frames_for_model(frames):
-    clip = list()
-    for frame in frames:
-        resized = cv2.resize(frame, (224, 224))
-        clip.append(resized)
-    clip = np.array(clip).transpose(1, 2, 3, 0)
-    clip = normalize(clip)
-    transforms = iaa.Noop()
-    aug_det = transforms.to_deterministic()
-    clip = np.array([aug_det.augment_image(clip[..., i]) for i in range(clip.shape[-1])]).transpose(1, 2, 3, 0)
-    clip = torch.from_numpy(clip.reshape(clip.shape[0], clip.shape[1], -1).transpose(2, 0, 1))
-    clip = clip.float()
-    clip = clip.unsqueeze(0)
-    return clip
-
-def predict_gesture(model, frames):
-    if model is None or len(frames) == 0:
-        st.error("Модель не загружена или нет кадров")
-        return "Модель не загружена", 0.0, []
-    
-
-    # --- Загрузка текстовых меток ---
-    label_mapping_path = "./src/datasets/bukva_label_mapping.csv"  # или укажите полный путь, если нужно
-    label_df = pd.read_csv(label_mapping_path)
-    # Убедимся, что метки отсортированы по label_encoded
-    label_df = label_df.sort_values('label_encoded')
-    class_names = label_df['text'].tolist()
-    
-    try:
-        input_tensor = prepare_frames_for_model(frames)
-        
-        with torch.no_grad():
-            outputs = model(input_tensor)
-            probabilities = torch.nn.functional.softmax(outputs, dim=1)
-            top3_conf, top3_idx = torch.topk(probabilities, 3)
-            top3_predictions = []
-            for i in range(3):
-                idx_val = top3_idx[0, i].item()
-                conf_val = top3_conf[0, i].item()
-                gesture_name = class_names[idx_val] if idx_val < len(class_names) else f"Класс {idx_val}"
-                top3_predictions.append((gesture_name, conf_val))
-            
-            confidence, predicted_idx = torch.max(probabilities, 1)
-            confidence_value = confidence.item()
-            predicted_idx_value = predicted_idx.item()
-        
-        if predicted_idx_value < len(class_names):
-            predicted_gesture = class_names[predicted_idx_value]
-        else:
-            predicted_gesture = f"Класс {predicted_idx_value}"
-        
-        return predicted_gesture, confidence_value, top3_predictions
-        
-    except Exception as e:
-        st.error(f"Ошибка при распознавании: {e}")
-        return "Ошибка", 0.0, []
 
 st.sidebar.header("📁 Загрузка видео")
 
@@ -151,10 +41,13 @@ if uploaded_file is not None:
     
     if st.sidebar.button("🎬 Извлечь кадры и распознать жест", type="primary"):
         with st.spinner("Извлекаем кадры из видео..."):
+            with open(CONFIG_PATH, 'r') as f:
+                config = json.load(f)
+                n_frames = config['data']['n_frames']
             
             frames_RGB = extract_frames(
                 video_path=temp_video_path,
-                num_frames=40,
+                num_frames=n_frames,
                 method='window',
                 resize_flag=True
             )
@@ -166,18 +59,22 @@ if uploaded_file is not None:
                 st.session_state.extracted_frames = frames
                 
                 st.subheader("📷 Извлечённые кадры из видео")
-                cols = st.columns(4)
+                cols = st.columns(10)
                 for idx, frame in enumerate(frames):
                     with cols[idx % 4]:
                         st.image(frame, caption=f"Кадр {idx+1}", width=150)
                 
                 if 'model' not in st.session_state:
                     with st.spinner("Загружаем модель распознавания..."):
-                        st.session_state.model = load_model()
+                        st.session_state.model = load_model(CONFIG_PATH, MODEL_PATH)
                 
                 if st.session_state.model:
                     with st.spinner("🤖 Распознаем жест..."):
-                        gesture, confidence, top3_list = predict_gesture(st.session_state.model, frames)
+                        gesture, confidence, top3_list = predict_gesture(
+                            st.session_state.model,
+                            frames,
+                            LABEL_MAP_PATH
+                            )
                         st.session_state.recognition_result = (gesture, confidence)
                         st.session_state.top3_result = top3_list
                         
@@ -213,7 +110,7 @@ if st.session_state.recognition_result:
 with st.expander("ℹ️ Как это работает"):
     st.markdown("""
     1. **Загрузите видеофайл** с жестом (MP4, AVI, MOV и другие форматы)
-    2. **Система извлечёт 40 кадров** из видео
+    2. **Система извлечёт кадры** из видео
     3. **Кадры обрабатываются** (изменение размера, нормализация)
     4. **Модель анализирует последовательность кадров** и распознаёт жест
     5. **Отображается результат** с указанием уровня уверенности
@@ -221,7 +118,7 @@ with st.expander("ℹ️ Как это работает"):
 
 if 'model' not in st.session_state:
     with st.spinner("Загружаем модель распознавания..."):
-        st.session_state.model = load_model()
+        st.session_state.model = load_model(CONFIG_PATH, MODEL_PATH)
 
 st.divider()
 st.caption("Система распознавания РЖЯ (Дактиль) | Режим видеофайла")
