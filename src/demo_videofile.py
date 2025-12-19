@@ -1,9 +1,11 @@
 import cv2
 import streamlit as st
 import json
+import tempfile
+import os
 
 from utils.framer import extract_frames
-from demo_functions import load_model, predict_gesture 
+from demo_functions import load_model, predict_gesture, frames_to_video
 
 MODEL_PATH = r".\checkpoints\Bukva\best_train_bukva.pth"
 CONFIG_PATH = r".\src\hyperparameters\Bukva\config.json"
@@ -30,6 +32,23 @@ uploaded_file = st.sidebar.file_uploader(
     type=['mp4', 'avi', 'mov', 'mkv', 'wmv']
 )
 
+import base64
+def autoplay_video(video_path):
+    """
+    Воспроизводит видео автоматически (без звука, с зацикливанием по желанию)
+    """
+    with open(video_path, "rb") as f:
+        video_bytes = f.read()
+    video_base64 = base64.b64encode(video_bytes).decode("utf-8")
+    
+    video_html = f"""
+    <video autoplay muted loop playsinline style="width: 100%; max-width: 600px; height: auto;">
+        <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
+        Ваш браузер не поддерживает видео.
+    </video>
+    """
+    st.markdown(video_html, unsafe_allow_html=True)
+
 if uploaded_file is not None:
     temp_video_path = f"temp_{uploaded_file.name}"
     with open(temp_video_path, "wb") as f:
@@ -39,7 +58,7 @@ if uploaded_file is not None:
     
     st.sidebar.success(f"Файл загружен: {uploaded_file.name}")
     
-    if st.sidebar.button("🎬 Извлечь кадры и распознать жест", type="primary"):
+    if st.sidebar.button("🎬 Распознать жест", type="primary"):
         with st.spinner("Извлекаем кадры из видео..."):
             with open(CONFIG_PATH, 'r') as f:
                 config = json.load(f)
@@ -58,15 +77,33 @@ if uploaded_file is not None:
             if frames:
                 st.session_state.extracted_frames = frames
                 
-                st.subheader("📷 Извлечённые кадры из видео")
-                cols = st.columns(10)
-                for idx, frame in enumerate(frames):
-                    with cols[idx % 4]:
-                        st.image(frame, caption=f"Кадр {idx+1}", width=150)
+                with st.expander("📷 Извлечённые кадры из видео"):
+                    cols = st.columns(10)
+                    for idx, frame in enumerate(frames):
+                        with cols[idx % 10]:
+                            st.image(frame, caption=f"Кадр {idx}", width=50)
                 
-                if 'model' not in st.session_state:
-                    with st.spinner("Загружаем модель распознавания..."):
-                        st.session_state.model = load_model(CONFIG_PATH, MODEL_PATH)
+                with st.spinner("🎥 Создаём видео из кадров..."):
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmpfile:
+                        frame_video_path = tmpfile.name
+                    try:
+                        frames_to_video(frames, frame_video_path, fps=20)
+
+                        if not os.path.exists(frame_video_path):
+                            st.error("Видео не создано")
+                            
+                        if os.path.getsize(frame_video_path) == 0:
+                            st.error("Видео пустое (0 байт)")
+                            
+                        #with open(frame_video_path, "rb") as f:
+                        #    st.video(f.read())
+                        autoplay_video(frame_video_path)
+                    
+                    finally:
+                        # Удаляем временный файл
+                        os.unlink(frame_video_path)
+                        if os.path.exists(frame_video_path):
+                            os.unlink(frame_video_path)
                 
                 if st.session_state.model:
                     with st.spinner("🤖 Распознаем жест..."):
@@ -79,13 +116,12 @@ if uploaded_file is not None:
                         st.session_state.top3_result = top3_list
                         
                         st.success(f"""
-                        ## 🎯 Результат распознавания
-                        ### **Жест: {gesture}**
+                        ## 🎯 **Буква: {gesture}**
                         Уверенность: {confidence:.1%}
                         """)
                         
                         if top3_list:
-                            st.subheader("🏆 Топ-3 альтернативных варианта")
+                            st.subheader("🏆 Топ-3 по уверенности")
                             cols = st.columns(3)
                             for i, (name, prob) in enumerate(top3_list):
                                 with cols[i]:
@@ -104,7 +140,7 @@ if uploaded_file is not None:
 if st.session_state.recognition_result:
     gesture, confidence = st.session_state.recognition_result
     st.sidebar.subheader("📊 Результат")
-    st.sidebar.metric("Распознанный жест", gesture)
+    st.sidebar.metric("Буква", gesture)
     st.sidebar.metric("Уверенность", f"{confidence:.1%}")
 
 with st.expander("ℹ️ Как это работает"):
