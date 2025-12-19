@@ -5,7 +5,7 @@ import tempfile
 import os
 
 from utils.framer import extract_frames
-from demo_functions import load_model, predict_gesture, frames_to_video
+from demo_functions import load_model, predict_gesture, frames_to_video, resize_to_autoplay
 
 MODEL_PATH = r".\checkpoints\Bukva\best_train_bukva.pth"
 CONFIG_PATH = r".\src\hyperparameters\Bukva\config.json"
@@ -33,6 +33,7 @@ uploaded_file = st.sidebar.file_uploader(
 )
 
 import base64
+macro_block_size=16
 def autoplay_video(video_path):
     """
     Воспроизводит видео автоматически (без звука, с зацикливанием по желанию)
@@ -42,10 +43,12 @@ def autoplay_video(video_path):
     video_base64 = base64.b64encode(video_bytes).decode("utf-8")
     
     video_html = f"""
-    <video autoplay muted loop playsinline style="width: 100%; max-width: 600px; height: auto;">
-        <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
-        Ваш браузер не поддерживает видео.
-    </video>
+    <div style="display: flex; justify-content: center; margin: 10px 0;">
+        <video autoplay muted loop playsinline style="max-width: 500px; width: 100%; height: auto;">
+            <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+        </video>
+    </div>
     """
     st.markdown(video_html, unsafe_allow_html=True)
 
@@ -64,39 +67,37 @@ if uploaded_file is not None:
                 config = json.load(f)
                 n_frames = config['data']['n_frames']
             
-            frames_RGB = extract_frames(
+            img_set_RGB = extract_frames(
                 video_path=temp_video_path,
                 num_frames=n_frames,
                 method='window',
                 resize_flag=True
             )
-            frames = []
-            for frame in frames_RGB:
-                frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            img_set = []
+            for img in img_set_RGB:
+                img_set.append(resize_to_autoplay(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), macro_block_size))
 
-            if frames:
-                st.session_state.extracted_frames = frames
+            if img_set:
+                st.session_state.extracted_frames = img_set
                 
                 with st.expander("📷 Извлечённые кадры из видео"):
                     cols = st.columns(10)
-                    for idx, frame in enumerate(frames):
+                    for idx, img in enumerate(img_set):
                         with cols[idx % 10]:
-                            st.image(frame, caption=f"Кадр {idx}", width=50)
+                            st.image(img, caption=f"Кадр {idx}", width=50)
                 
                 with st.spinner("🎥 Создаём видео из кадров..."):
                     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmpfile:
                         frame_video_path = tmpfile.name
                     try:
-                        frames_to_video(frames, frame_video_path, fps=20)
+                        frames_to_video(img_set, frame_video_path, fps=20)
 
                         if not os.path.exists(frame_video_path):
                             st.error("Видео не создано")
                             
                         if os.path.getsize(frame_video_path) == 0:
                             st.error("Видео пустое (0 байт)")
-                            
-                        #with open(frame_video_path, "rb") as f:
-                        #    st.video(f.read())
+
                         autoplay_video(frame_video_path)
                     
                     finally:
@@ -106,10 +107,10 @@ if uploaded_file is not None:
                             os.unlink(frame_video_path)
                 
                 if st.session_state.model:
-                    with st.spinner("🤖 Распознаем жест..."):
+                    with st.spinner("🤖 Распознается жест..."):
                         gesture, confidence, top3_list = predict_gesture(
                             st.session_state.model,
-                            frames,
+                            img_set,
                             LABEL_MAP_PATH
                             )
                         st.session_state.recognition_result = (gesture, confidence)
@@ -143,17 +144,8 @@ if st.session_state.recognition_result:
     st.sidebar.metric("Буква", gesture)
     st.sidebar.metric("Уверенность", f"{confidence:.1%}")
 
-with st.expander("ℹ️ Как это работает"):
-    st.markdown("""
-    1. **Загрузите видеофайл** с жестом (MP4, AVI, MOV и другие форматы)
-    2. **Система извлечёт кадры** из видео
-    3. **Кадры обрабатываются** (изменение размера, нормализация)
-    4. **Модель анализирует последовательность кадров** и распознаёт жест
-    5. **Отображается результат** с указанием уровня уверенности
-    """)
-
 if 'model' not in st.session_state:
-    with st.spinner("Загружаем модель распознавания..."):
+    with st.spinner("Загружаем модель..."):
         st.session_state.model = load_model(CONFIG_PATH, MODEL_PATH)
 
 st.divider()

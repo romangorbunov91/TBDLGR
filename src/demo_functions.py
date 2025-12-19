@@ -48,38 +48,18 @@ def frames_to_video(frames, output_path, fps=10):
         fps=fps,
         codec='libx264',
         format='mp4',
-        quality=6,          # 5–9, где 10 — максимальное качество (размер)
-        ffmpeg_params=['-pix_fmt', 'yuv420p']  # КРИТИЧЕСКИ ВАЖНО для браузеров!
+        quality=6#,          # 5–9, где 10 — максимальное качество (размер)
+        #ffmpeg_params=['-pix_fmt', 'yuv420p']
     ) as writer:
         for frame in frames:
             writer.append_data(frame)
-    '''
-    # Убедимся, что кадры в правильном формате
-    frame = frames[0]
-    height, width = frame.shape[:2]
 
-    # OpenCV по умолчанию ожидает BGR
-    # Если ваши кадры в RGB (например, от PIL), конвертируйте:
-    # if frame.shape[2] == 3:
-    #     frames = [cv2.cvtColor(f, cv2.COLOR_RGB2BGR) for f in frames]
+def resize_to_autoplay(img, macro_block_size):
+    h, w = img.shape[:2]
+    new_w = ((w + macro_block_size - 1) // macro_block_size) * macro_block_size
+    new_h = ((h + macro_block_size - 1) // macro_block_size) * macro_block_size
+    return cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
 
-    # Используем кодек 'mp4v' для .mp4
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    video_writer = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-
-    for frame in frames:
-        # Если frame в RGB → конвертируем в BGR
-        if frame.shape[2] == 3 and frame.dtype == np.uint8:
-            # Проверим: если значения в [0,1], масштабируем
-            if frame.max() <= 1.0:
-                frame = (frame * 255).astype(np.uint8)
-            # Если RGB → BGR
-            if frame[0, 0, 0] != frame[0, 0, 2]:  # эвристика: если R != B → RGB
-                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        video_writer.write(frame)
-
-    video_writer.release()
-    '''
 @st.cache_resource
 def load_model(CONFIG_PATH, MODEL_PATH):
     try:
@@ -123,7 +103,7 @@ def load_model(CONFIG_PATH, MODEL_PATH):
         for param in model.parameters():
             param.requires_grad = False
         
-        st.success(f"✅ Модель загружена успешно!")
+        st.success(f"✅ Модель загружена и готова к работе!")
         return model
         
     except Exception as e:

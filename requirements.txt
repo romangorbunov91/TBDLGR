@@ -1,7 +1,13 @@
 absl-py==2.3.1
+altair==6.0.0
 asttokens==3.0.1
 attrs==25.4.0
+blinker==1.9.0
+cachetools==6.2.4
+certifi==2025.11.12
 cffi==2.0.0
+charset-normalizer==3.4.4
+click==8.3.1
 colorama==0.4.6
 comm==0.2.3
 contourpy==1.3.3
@@ -13,7 +19,11 @@ filelock==3.20.0
 flatbuffers==25.9.23
 fonttools==4.60.1
 fsspec==2025.10.0
+gitdb==4.0.12
+GitPython==3.1.45
+idna==3.11
 ImageIO==2.37.2
+imageio-ffmpeg==0.6.0
 imgaug==0.4.0
 ipykernel==7.1.0
 ipython==9.7.0
@@ -23,6 +33,8 @@ jaxlib==0.7.1
 jedi==0.19.2
 Jinja2==3.1.6
 joblib==1.5.2
+jsonschema==4.25.1
+jsonschema-specifications==2025.9.1
 jupyter_client==8.6.3
 jupyter_core==5.9.1
 kiwisolver==1.4.9
@@ -33,6 +45,7 @@ matplotlib-inline==0.2.1
 mediapipe==0.10.13
 ml_dtypes==0.5.4
 mpmath==1.3.0
+narwhals==2.14.0
 nest-asyncio==1.6.0
 networkx==3.5
 numpy==1.26.4
@@ -48,12 +61,17 @@ prompt_toolkit==3.0.52
 protobuf==4.25.8
 psutil==7.1.3
 pure_eval==0.2.3
+pyarrow==22.0.0
 pycparser==2.23
+pydeck==0.9.1
 Pygments==2.19.2
 pyparsing==3.2.5
 python-dateutil==2.9.0.post0
 pytz==2025.2
 pyzmq==27.1.0
+referencing==0.37.0
+requests==2.32.5
+rpds-py==0.30.0
 scikit-image==0.25.2
 scikit-learn==1.7.2
 scipy==1.16.3
@@ -62,28 +80,23 @@ sentencepiece==0.2.1
 setuptools==80.9.0
 shapely==2.1.2
 six==1.17.0
+smmap==5.0.2
 sounddevice==0.5.3
 stack-data==0.6.3
+streamlit==1.52.1
 sympy==1.13.1
+tenacity==9.1.2
 tensorboardX==2.6.4
 threadpoolctl==3.6.0
 tifffile==2025.10.16
-<<<<<<< HEAD
-<<<<<<< HEAD
-torch-2.6.0+cu126-cp313-cp313-win_amd64.whl
-torchvision-0.24.1+cu126-cp313-cp313-win_amd64.whl
-torchaudio-2.6.0+cu126-cp313-cp313-win_amd64.whl
-=======
+toml==0.10.2
 torch @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torch-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=b10c39c83e5d1afd639b5c9f5683b351e97e41390a93f59c59187004a9949924
 torchaudio @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torchaudio-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=144b286d2f6195ba8d75ed1a568bddd718d032d54d1bf94940d47730c6321a0b
->>>>>>> develop-roman
-=======
-torch @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torch-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=b10c39c83e5d1afd639b5c9f5683b351e97e41390a93f59c59187004a9949924
-torchaudio @ file:///C:/Users/rgorbunov/Documents/ITMO/git_projects/TBDLGR/torchaudio-2.6.0%2Bcu126-cp312-cp312-win_amd64.whl#sha256=144b286d2f6195ba8d75ed1a568bddd718d032d54d1bf94940d47730c6321a0b
->>>>>>> develop-roman
 tornado==6.5.2
 tqdm==4.67.1
 traitlets==5.14.3
 typing_extensions==4.15.0
 tzdata==2025.2
+urllib3==2.6.2
+watchdog==6.0.0
 wcwidth==0.2.14
