@@ -206,9 +206,7 @@ class GestureTrainer(object):
 
         self.net.train()
         for data_tuple in tqdm(self.train_loader, desc="Train"):
-            """
-            input, gt
-            """
+
             inputs, gt = data_tuple[0].to(self.device), data_tuple[1].to(self.device)
 
             output = self.net(inputs)

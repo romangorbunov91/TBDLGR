@@ -11,16 +11,21 @@ from datasets.utils.normalize import normalize
 
 def prepare_frames_for_model(frames):
     clip = list()
-    for frame in frames:
-        resized = cv2.resize(frame, (224, 224))
-        clip.append(resized)
+    for img in frames:
+        clip.append(cv2.resize(img, (224, 224)))
+
+    # [frames, height, width, channels] convert to [height, width, channels, frames].
     clip = np.array(clip).transpose(1, 2, 3, 0)
+    # Normalize by 'channels'.
     clip = normalize(clip)
+
     transforms = iaa.Noop()
     aug_det = transforms.to_deterministic()
     clip = np.array([aug_det.augment_image(clip[..., i]) for i in range(clip.shape[-1])]).transpose(1, 2, 3, 0)
+    # [height, width, channels, frames] convert to [(channels*frames), height, width].
     clip = torch.from_numpy(clip.reshape(clip.shape[0], clip.shape[1], -1).transpose(2, 0, 1))
     clip = clip.float()
+    # [(channels*frames), height, width] convert to [batch, (channels*frames), height, width]
     clip = clip.unsqueeze(0)
     return clip
 
@@ -31,7 +36,6 @@ def frames_to_video(frames, output_path, fps=10):
     output_path: путь для сохранения видео
     fps: кадров в секунду
     """
-    
     
     if not frames:
         raise ValueError("Список кадров пуст")
@@ -116,10 +120,9 @@ def predict_gesture(model, frames, LABEL_MAP_PATH):
         st.error("Модель не загружена или нет кадров")
         return "Модель не загружена", 0.0, []
     
-    # --- Загрузка текстовых меток ---
-      # или укажите полный путь, если нужно
+    # Загрузка текстовых меток.
     label_df = pd.read_csv(LABEL_MAP_PATH)
-    # Убедимся, что метки отсортированы по label_encoded
+    # Убедимся, что метки отсортированы по label_encoded.
     label_df = label_df.sort_values('label_encoded')
     class_names = label_df['text'].tolist()
     

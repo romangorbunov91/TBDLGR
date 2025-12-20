@@ -75,13 +75,15 @@ class Bukva(Dataset):
             img = cv2.resize(img, (224, 224))
             clip.append(img)
 
+        # [frames, height, width, channels] convert to [height, width, channels, frames].
         clip = np.array(clip).transpose(1, 2, 3, 0)
+        # Normalize by 'channels'.
         clip = normalize(clip)
 
         if self.transforms is not None:
             aug_det = self.transforms.to_deterministic()
             clip = np.array([aug_det.augment_image(clip[..., i]) for i in range(clip.shape[-1])]).transpose(1, 2, 3, 0)
-
+        # [height, width, channels, frames] convert to [(channels*frames), height, width].
         clip = torch.from_numpy(clip.reshape(clip.shape[0], clip.shape[1], -1).transpose(2, 0, 1))
         label = torch.LongTensor(np.asarray([label]))
         return clip.float(), label

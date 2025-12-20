@@ -76,14 +76,13 @@ def resize_special(img, size, crop_flag=False):
     if crop_flag:
         aspect_ratio = img_height / img_width
         if (0.99 * 16/9 <= aspect_ratio <= 1.01 * 16/9):
-            # Compute crop bounds: center 50% of height
             top = int(img_height * 0.20)
             bottom = int(img_height * 0.80)
             left = 0
             right = img_width
             return cv2.resize(img[top:bottom, left:right], (size[0], size[0]))
           
-    if img_height < img_width:
+    if img_width > img_height:
         return cv2.resize(img, size)
     else:
         return cv2.resize(img, size[::-1])
