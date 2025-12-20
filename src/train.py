@@ -71,7 +71,7 @@ class GestureTrainer(object):
         self.test_loader = None
 
         # Module load and save utility.
-        self.device = self.configer.get("device")
+        self.device = torch.device(self.configer.get("device") if torch.cuda.is_available() else 'cpu')
         self.model_utility = ModuleUtilizer(self.configer)      #: Model utility for load, save and update optimizer
         self.net = None
         self.lr = None
@@ -209,8 +209,7 @@ class GestureTrainer(object):
             """
             input, gt
             """
-            inputs = data_tuple[0].to(self.device)
-            gt = data_tuple[1].to(self.device)
+            inputs, gt = data_tuple[0].to(self.device), data_tuple[1].to(self.device)
 
             output = self.net(inputs)
 
@@ -237,8 +236,7 @@ class GestureTrainer(object):
                 """
                 input, gt
                 """
-                inputs = data_tuple[0].to(self.device)
-                gt = data_tuple[1].to(self.device)
+                inputs, gt = data_tuple[0].to(self.device), data_tuple[1].to(self.device)
 
                 output = self.net(inputs)
                 loss = self.loss(output, gt.squeeze(dim=1))

@@ -55,7 +55,7 @@ class GestureTest(object):
         self.data_loader = None
 
         # Module load and save utility.
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device(self.configer.get("device") if torch.cuda.is_available() else 'cpu')
         self.model_utility = ModuleUtilizer(self.configer)      #: Model utility for load, save and update optimizer
         self.net = None
 
@@ -75,14 +75,17 @@ class GestureTest(object):
         self.in_planes = 3
 
         # Selecting correct model and normalization variable based on type variable
-        self.net = GestureTransformer(self.backbone, self.in_planes, self.n_classes,
-                                       pretrained=self.configer.get("network", "pretrained"),
-                                       n_head=self.configer.get("network", "n_head"),
-                                       dropout_backbone=self.configer.get("network", "dropout2d"),
-                                       dropout_transformer=self.configer.get("network", "dropout1d"),
-                                       dff=self.configer.get("network", "ff_size"),
-                                       n_module=self.configer.get("network", "n_module")
-                                       )
+        self.net = GestureTransformer(
+            self.backbone,
+            self.in_planes,
+            self.n_classes,
+            pretrained=self.configer.get("network", "pretrained"),
+            n_head=self.configer.get("network", "n_head"),
+            dropout_backbone=self.configer.get("network", "dropout2d"),
+            dropout_transformer=self.configer.get("network", "dropout1d"),
+            dff=self.configer.get("network", "ff_size"),
+            n_module=self.configer.get("network", "n_module")
+        )
 
         self.net, _, _, _ = self.model_utility.load_net(self.net)
 
@@ -141,7 +144,7 @@ class GestureTest(object):
         cm = confusion_matrix(all_labels, all_preds)
 
         # --- Загрузка текстовых меток ---
-        label_mapping_path = "./src/datasets/bukva_label_mapping.csv"  # или укажите полный путь, если нужно
+        label_mapping_path = "./src/datasets/bukva_label_map.csv"  # или укажите полный путь, если нужно
         label_df = pd.read_csv(label_mapping_path)
         # Убедимся, что метки отсортированы по label_encoded
         label_df = label_df.sort_values('label_encoded')

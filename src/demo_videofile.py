@@ -67,22 +67,22 @@ if uploaded_file is not None:
                 config = json.load(f)
                 n_frames = config['data']['n_frames']
             
-            img_set_RGB = extract_frames(
+            img_set = extract_frames(
                 video_path=temp_video_path,
                 num_frames=n_frames,
                 method='window',
                 resize_flag=True
             )
-            img_set = []
-            for img in img_set_RGB:
-                img_set.append(resize_to_autoplay(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), macro_block_size))
+            img_set_RGB = []
+            for img in img_set:
+                img_set_RGB.append(resize_to_autoplay(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), macro_block_size))
 
-            if img_set:
-                st.session_state.extracted_frames = img_set
+            if img_set_RGB:
+                st.session_state.extracted_frames = img_set_RGB
                 
                 with st.expander("📷 Извлечённые кадры из видео"):
                     cols = st.columns(10)
-                    for idx, img in enumerate(img_set):
+                    for idx, img in enumerate(img_set_RGB):
                         with cols[idx % 10]:
                             st.image(img, caption=f"Кадр {idx}", width=50)
                 
@@ -90,7 +90,7 @@ if uploaded_file is not None:
                     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmpfile:
                         frame_video_path = tmpfile.name
                     try:
-                        frames_to_video(img_set, frame_video_path, fps=20)
+                        frames_to_video(img_set_RGB, frame_video_path, fps=20)
 
                         if not os.path.exists(frame_video_path):
                             st.error("Видео не создано")

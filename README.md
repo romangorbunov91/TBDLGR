@@ -12,7 +12,7 @@
 **A Transformer-Based Network for Dynamic Hand Gesture Recognition**  
 *In International Conference on 3D Vision (3DV) 2020.*
 
-**[[Paper](https://iris.unimore.it/retrieve/handle/11380/1212263/282584/3DV_2020.pdf)]  [[Project Page](https://aimagelab.ing.unimore.it/imagelab/researchActivity.asp?idActivity=32)]**
+**[[Paper](https://iris.unimore.it/retrieve/handle/11380/1212263/282584/3DV_2020.pdf)] [[Project Page](https://aimagelab.ing.unimore.it/imagelab/researchActivity.asp?idActivity=32)] [[GitHub Code](https://github.com/aimagelab/TransformerBasedGestureRecognition)]**
 
 <p align="center" width="100%">
   <img src="./img/model.png"
@@ -202,6 +202,7 @@ streamlit run src\demo_videofile.py
 
 Основные параметры:
 - **dataset** - название датасета. ВАЖНО, т.к. фигурирует в путях к директориям.
+- **device** - "cuda" или "cpu".
 - **phase** - "train" или "test".
 - **data-->data_path** - путь к каталогу `frames`, содержащему полный датасет в кадрах.
 - **data-->n_classes** - количество классов в датасете.

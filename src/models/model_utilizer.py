@@ -14,7 +14,7 @@ class ModuleUtilizer(object):
     def __init__(self, configer):
         """Class constructor for Module utility"""
         self.configer = configer
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device(self.configer.get("device") if torch.cuda.is_available() else 'cpu')
 
         self.save_policy = self.configer.get("checkpoints", "save_policy")
         if self.save_policy in ["early_stop", "earlystop"]:
@@ -115,14 +115,17 @@ class ModuleUtilizer(object):
         if self.configer.get('resume') is not None:
             print('Restoring checkpoint: ', self.configer.get('resume'))
             checkpoint_dict = torch.load(self.configer.get('resume'))
-            # Remove "module." from DataParallel, if present
+            # Remove "module." from DataParallel, if present.
             checkpoint_dict['state_dict'] = {k[len('module.'):] if k.startswith('module.') else k: v for k, v in
                                              checkpoint_dict['state_dict'].items()}
             net.load_state_dict(checkpoint_dict['state_dict'])
             iters = checkpoint_dict['iter'] if 'iter' in checkpoint_dict else 0
             optimizer = checkpoint_dict['optimizer'] if 'optimizer' in checkpoint_dict else None
             epoch = checkpoint_dict['epoch'] if 'epoch' in checkpoint_dict else None
-        net = nn.DataParallel(net, device_ids=self.configer.get('gpu')).to(self.device)
+        
+        net = net.to(self.device)
+        if self.device.type == 'cuda' and torch.cuda.device_count() > 1:
+            net = nn.DataParallel(net)
         return net, iters, epoch, optimizer
 
     def _save_net(self, net, optimizer, iters, epoch, all=False):

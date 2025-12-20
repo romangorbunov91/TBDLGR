@@ -1,6 +1,7 @@
 {
     "name": "Gesture Recognition",
     "dataset": "Bukva",
+    "device": "cuda",
     "epochs": 100,
     "phase": "train",
     "data": {

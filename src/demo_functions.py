@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
+import torch
 import cv2
 import streamlit as st
 import json
 import imgaug.augmenters as iaa
-import torch
 import imageio
 
 from datasets.utils.normalize import normalize
@@ -69,6 +69,7 @@ def load_model(CONFIG_PATH, MODEL_PATH):
             config = json.load(f)
         
         n_classes = config['data']['n_classes']
+        device = torch.device(config["device"] if torch.cuda.is_available() else 'cpu')
         backbone = config['network']['backbone']
         n_head = config['network']['n_head']
         dropout2d = config['network']['dropout2d']
@@ -90,7 +91,7 @@ def load_model(CONFIG_PATH, MODEL_PATH):
             dff=ff_size,
             n_module=n_module
         )
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
         checkpoint = torch.load(MODEL_PATH, map_location=device)
         state_dict = checkpoint['state_dict']
         
