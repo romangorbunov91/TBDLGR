@@ -61,12 +61,13 @@ if uploaded_file is not None:
                     method='window',
                     resize_flag=True
                 )
-                img_set_RGB = []
-                for img in img_set:
-                    img_set_RGB.append(resize_to_autoplay(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), MACRO_BLOCK_SIZE))
+                
+                if img_set:
 
-                if img_set_RGB:
-                    
+                    img_set_RGB = []
+                    for img in img_set:
+                        img_set_RGB.append(resize_to_autoplay(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), MACRO_BLOCK_SIZE))
+
                     with st.expander("📷 Извлечённые кадры из видео"):
                         cols = st.columns(10)
                         for idx, img in enumerate(img_set_RGB):
@@ -92,7 +93,7 @@ if uploaded_file is not None:
                             # Удаляем временный файл.
                             if os.path.exists(frame_video_path):
                                 os.unlink(frame_video_path)
-                    
+                
                     if st.session_state.model:
                         with st.spinner("🤖 Распознается жест..."):
                             gesture, confidence, top3_list = predict_gesture(
