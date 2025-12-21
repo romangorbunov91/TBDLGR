@@ -47,7 +47,7 @@ class GestureTest(object):
         self.configer = configer
 
         self.data_path = Path(self.configer.get("data", "data_path")) / self.configer.get("dataset")
-        print(self.data_path)
+
         # Train val and test accuracy
         self.accuracy = AverageMeter()
 
@@ -64,15 +64,13 @@ class GestureTest(object):
 
         # Other useful data
         self.backbone = self.configer.get("network", "backbone")    #: str: Backbone type
-        self.in_planes = None                                       #: int: Input channels
+        self.in_planes = 3                                       #: int: Input channels
         self.clip_length = self.configer.get("data", "n_frames")    #: int: Number of frames per sequence
         self.n_classes = self.configer.get("data", "n_classes")     #: int: Total number of classes for dataset
         self.dataset = self.configer.get("dataset").lower()         #: str: Type of dataset
 
     def init_model(self):
         """Initialize model and other data for procedure"""
-
-        self.in_planes = 3
 
         # Selecting correct model and normalization variable based on type variable
         self.net = GestureTransformer(

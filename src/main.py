@@ -33,7 +33,7 @@ if __name__ == "__main__":
                         dest='nogesture', help='NoGesture CTC loss')
 
     args = parser.parse_args()
-    args.device = None
+    #args.device = None
 
     torch.autograd.set_detect_anomaly(True)
     configer = Configer(args)

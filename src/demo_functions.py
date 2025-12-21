@@ -6,10 +6,11 @@ import streamlit as st
 import json
 import imgaug.augmenters as iaa
 import imageio
+import base64
 
 from datasets.utils.normalize import normalize
 
-def prepare_frames_for_model(frames):
+def transform_frames_for_model(frames):
     clip = list()
     for img in frames:
         clip.append(cv2.resize(img, (224, 224)))
@@ -29,7 +30,7 @@ def prepare_frames_for_model(frames):
     clip = clip.unsqueeze(0)
     return clip
 
-def frames_to_video(frames, output_path, fps=10):
+def frames_to_video(frames, output_path, fps):
     """
     Сохраняет список кадров (NumPy arrays) в видеофайл.
     frames: список изображений в формате (H, W, C), uint8, BGR или RGB
@@ -42,7 +43,7 @@ def frames_to_video(frames, output_path, fps=10):
     # Проверим формат первого кадра
     first_frame = frames[0]
     if first_frame.ndim != 3 or first_frame.shape[2] != 3:
-        raise ValueError("Каждый кадр должен быть (H, W, 3)")
+        raise ValueError("Каждый кадр должен быть (H, W, C=3)")
     if first_frame.dtype != 'uint8':
         raise ValueError("Кадры должны быть uint8 (0-255)")
 
@@ -58,13 +59,33 @@ def frames_to_video(frames, output_path, fps=10):
         for frame in frames:
             writer.append_data(frame)
 
+
 def resize_to_autoplay(img, macro_block_size):
     h, w = img.shape[:2]
     new_w = ((w + macro_block_size - 1) // macro_block_size) * macro_block_size
     new_h = ((h + macro_block_size - 1) // macro_block_size) * macro_block_size
     return cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
 
-@st.cache_resource
+
+def autoplay_video(video_path):
+    """
+    Воспроизводит видео автоматически (без звука, с зацикливанием по желанию).
+    """
+    with open(video_path, "rb") as f:
+        video_bytes = f.read()
+    video_base64 = base64.b64encode(video_bytes).decode("utf-8")
+    
+    video_html = f"""
+    <div style="display: flex; justify-content: center; margin: 10px 0;">
+        <video autoplay muted loop playsinline style="max-width: 500px; width: 100%; height: auto;">
+            <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+        </video>
+    </div>
+    """
+    st.markdown(video_html, unsafe_allow_html=True)
+
+@st.cache_resource(max_entries=1)
 def load_model(CONFIG_PATH, MODEL_PATH):
     try:
         from models.temporal import GestureTransformer
@@ -72,42 +93,30 @@ def load_model(CONFIG_PATH, MODEL_PATH):
         with open(CONFIG_PATH, 'r') as f:
             config = json.load(f)
         
-        n_classes = config['data']['n_classes']
         device = torch.device(config["device"] if torch.cuda.is_available() else 'cpu')
-        backbone = config['network']['backbone']
-        n_head = config['network']['n_head']
-        dropout2d = config['network']['dropout2d']
-        dropout1d = config['network']['dropout1d']
-        ff_size = config['network']['ff_size']
-        n_module = config['network']['n_module']
-        pretrained = config['network']['pretrained']
 
-        in_planes = 3
-        
         model = GestureTransformer(
-            backbone=backbone,
-            in_planes=in_planes,
-            n_classes=n_classes,
-            pretrained=pretrained,
-            n_head=n_head,
-            dropout_backbone=dropout2d,
-            dropout_transformer=dropout1d,
-            dff=ff_size,
-            n_module=n_module
-        )
-        
+            backbone=config['network']['backbone'],
+            in_planes=3,
+            n_classes=config['data']['n_classes'],
+            pretrained=config['network']['pretrained'],
+            n_head=config['network']['n_head'],
+            dropout_backbone=config['network']['dropout2d'],
+            dropout_transformer=config['network']['dropout1d'],
+            dff=config['network']['ff_size'],
+            n_module=config['network']['n_module']
+            )
         checkpoint = torch.load(MODEL_PATH, map_location=device)
         state_dict = checkpoint['state_dict']
-        
-        if list(state_dict.keys())[0].startswith('module.'):
+
+        # Remove 'module.' prefix if present
+        if state_dict and list(state_dict.keys())[0].startswith('module.'):
             state_dict = {k[7:]: v for k, v in state_dict.items()}
         
+        model = model.to(device)
         model.load_state_dict(state_dict, strict=False)
         model.eval()
-        
-        for param in model.parameters():
-            param.requires_grad = False
-        
+
         st.success(f"✅ Модель загружена и готова к работе!")
         return model
         
@@ -115,7 +124,8 @@ def load_model(CONFIG_PATH, MODEL_PATH):
         st.error(f"❌ Ошибка загрузки модели: {e}")
         return None
 
-def predict_gesture(model, frames, LABEL_MAP_PATH):
+
+def predict_gesture(model, frames, LABEL_MAP_PATH, device_name):
     if model is None or len(frames) == 0:
         st.error("Модель не загружена или нет кадров")
         return "Модель не загружена", 0.0, []
@@ -125,9 +135,11 @@ def predict_gesture(model, frames, LABEL_MAP_PATH):
     # Убедимся, что метки отсортированы по label_encoded.
     label_df = label_df.sort_values('label_encoded')
     class_names = label_df['text'].tolist()
+
+    device = torch.device(device_name if torch.cuda.is_available() else 'cpu')
     
     try:
-        input_tensor = prepare_frames_for_model(frames)
+        input_tensor = transform_frames_for_model(frames).to(device)
         
         with torch.no_grad():
             outputs = model(input_tensor)
