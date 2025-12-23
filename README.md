@@ -167,7 +167,7 @@ python -m venv .venv
 ```
 pip install -r requirements.txt
 ```
-### 4. В файле `\.venv\Lib\site-packages\imgaug\imgaug.py` замените сроки
+### 4. В файле `\.venv\Lib\site-packages\imgaug\imgaug.py` замените строки
 ```
 NP_FLOAT_TYPES = ...
 NP_INT_TYPES = ...
@@ -189,6 +189,11 @@ NP_UINT_TYPES = {np.uint8, np.uint16, np.uint32, np.uint64}
 streamlit run src\demo_videofile.py
 ```
 Видеофайлы для теста на демонстрации: [Bukva-video Trimmed only](https://drive.google.com/drive/folders/1rXMtY4ja6oxHKdgiV-5taWaEJc1R3kjN?usp=sharing "G-Drive copy")
+
+<figure>
+  <img src='img/demo.gif'
+      style='width:100%; height:auto;'>
+</figure>
 
 ### Примечания
 
@@ -236,7 +241,7 @@ project/
 - `frames` - каталог, содержащий набор подкаталогов по `n_frames`-картинок в каждом.
 - `annotations.csv` - файл аннотаций.
 
-Авторы обучали модель на [датасете из кадров](https://drive.google.com/drive/folders/1fNGxhSeYJESwz8WrbrJf83ssl53AIIUm?usp=drive_link "G-Drive"), сформированном из Bukva-trimmed через [framer.py](src/utils/framer.py). 40 кадров на каждый видеофайл.
+Авторы обучали модель на [датасете из кадров](https://drive.google.com/file/d/1escF7muzgivveMuM9ndUtooTm2yMyeFg/view?usp=drive_link "G-Drive"), сформированном из Bukva-trimmed через [framer.py](src/utils/framer.py). 40 кадров на каждый видеофайл.
 
 ### Веса
 Реализована возможность подгрузить веса модели - как на `test`, так и на дообучение в `train`. Файл весов `*.pth` необходимо разместить в директории `checkpoints/Bukva/`.
