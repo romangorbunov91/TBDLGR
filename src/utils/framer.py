@@ -50,23 +50,6 @@ SELECTION_METHOD = 'window'
 INPUT_DIR_PATH = Path(SOURCE_FOLDER) / SOURCE_TYPE
 OUTPUT_DIR_PATH = Path(SOURCE_FOLDER) / OUT_FOLDER
 
-if not os.path.exists(OUTPUT_DIR_PATH):
-    os.makedirs(OUTPUT_DIR_PATH)
-
-csv_path = Path(SOURCE_FOLDER) / ANNOTATIONS_FILE_NAME
-
-if not os.path.exists(csv_path):
-    raise FileNotFoundError(f"Annotations has not been found: {csv_path}")
-
-annotations = np.genfromtxt(
-    csv_path,
-    delimiter=',',
-    usecols=0, # 'attachment_id'
-    skip_header=1,
-    dtype=str,          # ← critical: read as string
-    encoding='utf-8'    # ← good practice for non-English text
-)
-
 video_extensions = ('.mp4', '.avi', '.mov', '.mkv', '.wmv')
 image_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
 
@@ -339,6 +322,24 @@ def extract_frames(video_path, num_frames=40, method='window', resize_flag=False
 
 # Основной алгоритм.
 if __name__ == "__main__":
+    
+    if not os.path.exists(OUTPUT_DIR_PATH):
+        os.makedirs(OUTPUT_DIR_PATH)
+
+    csv_path = Path(SOURCE_FOLDER) / ANNOTATIONS_FILE_NAME
+
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"Annotations has not been found: {csv_path}")
+
+    annotations = np.genfromtxt(
+        csv_path,
+        delimiter=',',
+        usecols=0, # 'attachment_id'
+        skip_header=1,
+        dtype=str,          # ← critical: read as string
+        encoding='utf-8'    # ← good practice for non-English text
+    )
+    
     logger.info(f"START: method {SELECTION_METHOD}, target: {N_FRAMES} frames in {len(annotations)} items.")
 
     if SOURCE_TYPE == 'frames':
