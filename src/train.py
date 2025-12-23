@@ -296,14 +296,14 @@ class GestureTrainer(object):
         fig, ax = plt.subplots(figsize=(16, 12))  # Adjust size if needed
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=range(len(cm)))
         disp.plot(cmap=plt.cm.Blues, ax=ax)
-        plt.title(f"Confusion Matrix (Epoch {self.epoch + 1} TEST mean accuracy: {self.accuracy["test"].avg:.4f})")
+        plt.title(f"Confusion Matrix (Epoch {self.epoch + 1} TEST mean accuracy: {self.accuracy['test'].avg:.4f})")
 
         # Save as PDF
         # Create destination folder.
         dir_path = Path(self.configer.get('scores', 'save_dir')) / self.configer.get("dataset")
         if not os.path.exists(dir_path):
             os.makedirs(dir_path, exist_ok=True)
-        output_path = dir_path/ f"TEST_epoch_{self.epoch + 1}_acc_{self.accuracy["test"].avg:.4f}.pdf"
+        output_path = dir_path/ f"TEST_epoch_{self.epoch + 1}_acc_{self.accuracy['test'].avg:.4f}.pdf"
         plt.savefig(output_path, format='pdf', bbox_inches='tight')
         plt.close(fig)  # Free memory
         print(f"Confusion matrix saved to {output_path}")

@@ -114,7 +114,7 @@ class ModuleUtilizer(object):
         optimizer = None
         if self.configer.get('resume') is not None:
             print('Restoring checkpoint: ', self.configer.get('resume'))
-            checkpoint_dict = torch.load(self.configer.get('resume'))
+            checkpoint_dict = torch.load(self.configer.get('resume'), map_location=self.device)
             # Remove "module." from DataParallel, if present.
             checkpoint_dict['state_dict'] = {k[len('module.'):] if k.startswith('module.') else k: v for k, v in
                                              checkpoint_dict['state_dict'].items()}
